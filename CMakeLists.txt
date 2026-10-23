@@ -1,11 +1,6 @@
-cmake_minimum_required(VERSION 3.16)
-project(vehicle_state_estimator CXX)
-
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# Enable strict compiler warnings as errors for GCC and Clang
+# Enable strict compiler warnings and sanitizers for GCC and Clang
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    # Compiler Hardening: Warnings as errors
     add_compile_options(
         -Wall
         -Wextra
@@ -16,4 +11,17 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         -Wshadow
         -Wformat=2
     )
+
+    # Sanitizers (Toggleable via -DENABLE_SANITIZERS=OFF)
+    option(ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" ON)
+    if(ENABLE_SANITIZERS)
+        add_compile_options(
+            -fsanitize=address,undefined
+            -fno-sanitize-recover=all
+            -fno-omit-frame-pointer
+        )
+        add_link_options(
+            -fsanitize=address,undefined
+        )
+    endif()
 endif()
