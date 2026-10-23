@@ -1,0 +1,11 @@
+---
+Checks: >
+  -*,
+  bugprone-*,
+  cppcoreguidelines-avoid-goto,
+  modernize-use-nullptr,
+  performance-*,
+  readability-redundant-declaration
+
+HeaderFilterRegex: ''
+...
