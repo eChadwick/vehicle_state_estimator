@@ -1,6 +1,9 @@
 #include <gtest/gtest-spi.h>
 #include <gtest/gtest.h>
 
+#include <memory>
+#include <new>
+
 #include "ZeroAllocationTestFixture.hpp"
 
 class ConcreteZeroAllocationTestFixture : public ZeroAllocationTestFixture {
