@@ -36,12 +36,12 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     endif()
 
     add_executable(unit_tests
-        tests/ZeroAllocationTestFixtureTest.cpp
+        tests/fixtures/ZeroAllocationTestFixtureTest.cpp
         tests/KalmanFilterTest.cpp
-        tests/ZeroAllocationTestFixture.cpp
+        tests/fixtures/ZeroAllocationTestFixture.cpp
     )
 
     find_package(GTest REQUIRED)
     target_link_libraries(unit_tests PRIVATE GTest::gtest_main GTest::gtest)
-    target_include_directories(unit_tests PRIVATE src)
+    target_include_directories(unit_tests PRIVATE src tests/fixtures)
 endif()
