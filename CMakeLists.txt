@@ -28,17 +28,22 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         )
     endif()
 
+    add_library(kalman_core STATIC
+        src/KalmanFilter.cpp
+    )
+    target_include_directories(kalman_core PUBLIC
+        src
+    )
 
     add_executable(unit_tests
         tests/fixtures/ZeroAllocationTestFixtureTest.cpp
         tests/fixtures/ZeroAllocationTestFixture.cpp
         tests/KalmanFilterTest.cpp
-        src/KalmanFilter.cpp
     )
 
     find_package(GTest REQUIRED)
-    target_link_libraries(unit_tests PRIVATE GTest::gtest_main GTest::gtest)
-    target_include_directories(unit_tests PRIVATE src tests/fixtures)
+    target_link_libraries(unit_tests PRIVATE GTest::gtest_main GTest::gtest kalman_core)
+    target_include_directories(unit_tests PRIVATE tests/fixtures)
 
     find_program(IWYU_PATH NAMES include-what-you-use iwyu)
     if(IWYU_PATH)
