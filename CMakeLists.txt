@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.22)
+project(KalmanFilter CXX)
+
 # Enable strict compiler warnings and sanitizers for GCC and Clang
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     # Compiler Hardening: Warnings as errors
@@ -24,4 +27,11 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
             -fsanitize=address,undefined
         )
     endif()
+
+    add_executable(unit_tests
+        tests/ZeroAllocationTestFixtureTest.cpp
+    )
+
+    find_package(GTest REQUIRED)
+    target_link_libraries(unit_tests PRIVATE GTest::gtest_main GTest::gtest)
 endif()
