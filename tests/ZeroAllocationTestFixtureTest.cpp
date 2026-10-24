@@ -32,3 +32,14 @@ TEST(ZeroAllocationTestFixtureTest, NothrowScalarOperatorNewTriggersFailure) {
         },
         allocation_failure_message);
 }
+
+TEST(ZeroAllocationTestFixtureTest, ArrayOperatorNewTriggersFailure) {
+    EXPECT_NONFATAL_FAILURE(
+        {
+            ConcreteZeroAllocationTestFixture fixture;
+            fixture.SetUp();
+            ::operator delete[](::operator new[](32));
+            fixture.TearDown();
+        },
+        allocation_failure_message);
+}

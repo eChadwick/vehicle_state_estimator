@@ -14,7 +14,7 @@ void* operator new(size_t size, const std::nothrow_t&) noexcept {
 }
 
 void* operator new[](size_t size) {
-    // allocation_failure = true;
+    allocation_failure = true;
     return std::malloc(size);
 }
 
