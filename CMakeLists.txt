@@ -38,6 +38,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     add_executable(unit_tests
         tests/ZeroAllocationTestFixtureTest.cpp
         tests/KalmanFilterTest.cpp
+        tests/ZeroAllocationTestFixture.cpp
     )
 
     find_package(GTest REQUIRED)

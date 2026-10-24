@@ -1,40 +1,17 @@
 #include <gtest/gtest.h>
 
 inline thread_local bool allocation_failure{false};
-const char* allocation_failure_message{"Heap allocation failure"};
+inline const char* allocation_failure_message{"Heap allocation failure"};
 
-void* operator new(size_t size) {
-    allocation_failure = true;
-    return std::malloc(size);
-}
+void* operator new(size_t size);
+void* operator new(size_t size, const std::nothrow_t&) noexcept;
+void* operator new[](size_t size);
+void* operator new[](size_t size, const std::nothrow_t&) noexcept;
 
-void* operator new(size_t size, const std::nothrow_t&) noexcept {
-    allocation_failure = true;
-    return std::malloc(size);
-}
-
-void* operator new[](size_t size) {
-    allocation_failure = true;
-    return std::malloc(size);
-}
-
-void* operator new[](size_t size, const std::nothrow_t&) noexcept {
-    allocation_failure = true;
-    return std::malloc(size);
-}
-
-void operator delete(void* ptr) noexcept {
-    std::free(ptr);
-}
-void operator delete[](void* ptr) noexcept {
-    std::free(ptr);
-}
-void operator delete(void* ptr, size_t) noexcept {
-    std::free(ptr);
-}
-void operator delete[](void* ptr, size_t) noexcept {
-    std::free(ptr);
-}
+void operator delete(void* ptr) noexcept;
+void operator delete[](void* ptr) noexcept;
+void operator delete(void* ptr, size_t) noexcept;
+void operator delete[](void* ptr, size_t) noexcept;
 
 class ZeroAllocationTestFixture : public testing::Test {
   protected:
