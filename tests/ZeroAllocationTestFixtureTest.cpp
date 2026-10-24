@@ -11,7 +11,7 @@ class ConcreteZeroAllocationTestFixture : public ZeroAllocationTestFixture{
     void TestBody() override {}
 };
 
-TEST(ZeroAllocationTestFixtureTest, DynamicAllocationCausesTestFailure){
+TEST(ZeroAllocationTestFixtureTest, ScalarOperatorNewTriggersFailure){
     EXPECT_NONFATAL_FAILURE({
         ConcreteZeroAllocationTestFixture fixture;        
         fixture.SetUp();
