@@ -28,12 +28,14 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         )
     endif()
 
+    find_package(Eigen3 REQUIRED)
     add_library(kalman_core STATIC
         src/KalmanFilter.cpp
     )
     target_include_directories(kalman_core PUBLIC
         src
     )
+    target_link_libraries(kalman_core PUBLIC Eigen3::Eigen)
 
     add_executable(unit_tests
         tests/fixtures/ZeroAllocationTestFixtureTest.cpp
@@ -42,6 +44,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     )
 
     find_package(GTest REQUIRED)
+
     target_link_libraries(unit_tests PRIVATE GTest::gtest_main GTest::gtest kalman_core)
     target_include_directories(unit_tests PRIVATE tests/fixtures)
 

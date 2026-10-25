@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 
+#include <Eigen/Dense>
+
 #include "KalmanFilter.hpp"
 #include "ZeroAllocationTestFixture.hpp"
 
