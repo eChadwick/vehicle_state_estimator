@@ -2,27 +2,35 @@
 
 #include <Eigen/Dense>  // IWYU pragma: keep
 
-KalmanFilter::KalmanFilter(const Eigen::Matrix<double, 1, 2>& stateVector,
-                           const Eigen::Matrix<double, 2, 2>& transitionMatrix,
-                           const Eigen::Matrix<double, 2, 2>& errorCovarianceMatrix,
-                           const Eigen::Matrix<double, 2, 2>& processNoiseMatrix)
+template <typename ScalarType>
+KalmanFilter<ScalarType>::KalmanFilter(const Eigen::Matrix<ScalarType, 1, 2>& stateVector,
+                                       const Eigen::Matrix<ScalarType, 2, 2>& transitionMatrix,
+                                       const Eigen::Matrix<ScalarType, 2, 2>& errorCovarianceMatrix,
+                                       const Eigen::Matrix<ScalarType, 2, 2>& processNoiseMatrix)
     : mStateVector{stateVector},
       mTransitionMatrix{transitionMatrix},
       mErrorCovarianceMatrix{errorCovarianceMatrix},
       mProcessNoiseMatrix{processNoiseMatrix} {}
 
-const Eigen::Matrix<double, 1, 2>& KalmanFilter::GetStateVector() {
+template <typename ScalarType>
+const Eigen::Matrix<ScalarType, 1, 2>& KalmanFilter<ScalarType>::GetStateVector() {
     return mStateVector;
 }
 
-const Eigen::Matrix<double, 2, 2>& KalmanFilter::GetTransitionMatrix() {
+template <typename ScalarType>
+const Eigen::Matrix<ScalarType, 2, 2>& KalmanFilter<ScalarType>::GetTransitionMatrix() {
     return mTransitionMatrix;
 }
 
-const Eigen::Matrix<double, 2, 2>& KalmanFilter::GetErrorCovarianceMatrix() {
+template <typename ScalarType>
+const Eigen::Matrix<ScalarType, 2, 2>& KalmanFilter<ScalarType>::GetErrorCovarianceMatrix() {
     return mErrorCovarianceMatrix;
 }
 
-const Eigen::Matrix<double, 2, 2>& KalmanFilter::GetProcessNoiseMatrix() {
+template <typename ScalarType>
+const Eigen::Matrix<ScalarType, 2, 2>& KalmanFilter<ScalarType>::GetProcessNoiseMatrix() {
     return mProcessNoiseMatrix;
 }
+
+template class KalmanFilter<float>;
+template class KalmanFilter<double>;
