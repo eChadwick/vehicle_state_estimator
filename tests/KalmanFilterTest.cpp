@@ -12,36 +12,68 @@ class KalmanFilterZeroAllocationTestFixture : public ZeroAllocationTestFixture {
 
 TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedScalarTypes) {
     {
-        using stateVector = Eigen::Matrix<double, 1, 2>;
-        using matrix = Eigen::Matrix<double, 2, 2>;
+        using StateVector = Eigen::Matrix<double, 1, 2>;
+        using Matrix = Eigen::Matrix<double, 2, 2>;
 
-        stateVector stateVector_double;
-        matrix transitionMatrix_double;
-        matrix errorCovarianceMatrix_double;
-        matrix processNoiseMatrix_double;
-        KalmanFilter uUt_double{stateVector_double, transitionMatrix_double,
-                                errorCovarianceMatrix_double, processNoiseMatrix_double};
+        StateVector stateVector;
+        Matrix transitionMatrix;
+        Matrix errorCovarianceMatrix;
+        Matrix processNoiseMatrix;
+        KalmanFilter uUt{stateVector, transitionMatrix, errorCovarianceMatrix, processNoiseMatrix};
 
-        EXPECT_TRUE(stateVector_double.isApprox(uUt_double.GetStateVector()));
-        EXPECT_TRUE(transitionMatrix_double.isApprox(uUt_double.GetTransitionMatrix()));
-        EXPECT_TRUE(errorCovarianceMatrix_double.isApprox(uUt_double.GetErrorCovarianceMatrix()));
-        EXPECT_TRUE(processNoiseMatrix_double.isApprox(uUt_double.GetProcessNoiseMatrix()));
+        EXPECT_TRUE(stateVector.isApprox(uUt.GetStateVector()));
+        EXPECT_TRUE(transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
+        EXPECT_TRUE(errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
+        EXPECT_TRUE(processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
     }
 
     {
-        using stateVector = Eigen::Matrix<float, 1, 2>;
-        using matrix = Eigen::Matrix<float, 2, 2>;
+        using StateVector = Eigen::Matrix<float, 1, 2>;
+        using Matrix = Eigen::Matrix<float, 2, 2>;
 
-        stateVector stateVector_float;
-        matrix transitionMatrix_float;
-        matrix errorCovarianceMatrix_float;
-        matrix processNoiseMatrix_float;
-        KalmanFilter uUt_float{stateVector_float, transitionMatrix_float,
-                               errorCovarianceMatrix_float, processNoiseMatrix_float};
+        StateVector stateVector;
+        Matrix transitionMatrix;
+        Matrix errorCovarianceMatrix;
+        Matrix processNoiseMatrix;
+        KalmanFilter uUt{stateVector, transitionMatrix, errorCovarianceMatrix, processNoiseMatrix};
 
-        EXPECT_TRUE(stateVector_float.isApprox(uUt_float.GetStateVector()));
-        EXPECT_TRUE(transitionMatrix_float.isApprox(uUt_float.GetTransitionMatrix()));
-        EXPECT_TRUE(errorCovarianceMatrix_float.isApprox(uUt_float.GetErrorCovarianceMatrix()));
-        EXPECT_TRUE(processNoiseMatrix_float.isApprox(uUt_float.GetProcessNoiseMatrix()));
+        EXPECT_TRUE(stateVector.isApprox(uUt.GetStateVector()));
+        EXPECT_TRUE(transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
+        EXPECT_TRUE(errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
+        EXPECT_TRUE(processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
+    }
+}
+
+TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedVectorDimensions) {
+    {
+        using StateVector = Eigen::Matrix<float, 1, 2>;
+        using Matrix = Eigen::Matrix<float, 2, 2>;
+
+        StateVector stateVector;
+        Matrix transitionMatrix;
+        Matrix errorCovarianceMatrix;
+        Matrix processNoiseMatrix;
+        KalmanFilter uUt{stateVector, transitionMatrix, errorCovarianceMatrix, processNoiseMatrix};
+
+        EXPECT_TRUE(stateVector.isApprox(uUt.GetStateVector()));
+        EXPECT_TRUE(transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
+        EXPECT_TRUE(errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
+        EXPECT_TRUE(processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
+    }
+
+    {
+        using StateVector = Eigen::Matrix<float, 1, 3>;
+        using Matrix = Eigen::Matrix<float, 3, 3>;
+
+        StateVector stateVector;
+        Matrix transitionMatrix;
+        Matrix errorCovarianceMatrix;
+        Matrix processNoiseMatrix;
+        KalmanFilter uUt{stateVector, transitionMatrix, errorCovarianceMatrix, processNoiseMatrix};
+
+        EXPECT_TRUE(stateVector.isApprox(uUt.GetStateVector()));
+        EXPECT_TRUE(transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
+        EXPECT_TRUE(errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
+        EXPECT_TRUE(processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
     }
 }
