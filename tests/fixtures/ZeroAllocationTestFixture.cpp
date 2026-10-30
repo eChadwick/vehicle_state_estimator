@@ -1,5 +1,7 @@
 #include "ZeroAllocationTestFixture.hpp"
 
+#include <cstdlib>
+
 void* operator new(size_t size) {
     allocation_failure = true;
     return std::malloc(size);

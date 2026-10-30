@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
-
-#include <Eigen/Dense>  // IWYU pragma: keep
+#include <Eigen/Dense>
+#include <string>
 
 #include "KalmanFilter.hpp"
 #include "ZeroAllocationTestFixture.hpp"
+#include "gtest/gtest.h"
 
 class KalmanFilterZeroAllocationTestFixture : public ZeroAllocationTestFixture {
     using ZeroAllocationTestFixture::SetUp;

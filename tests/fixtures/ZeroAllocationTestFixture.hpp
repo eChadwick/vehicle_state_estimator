@@ -1,4 +1,9 @@
-#include <gtest/gtest.h>
+#include <stddef.h>
+
+#include <new>
+#include <string>
+
+#include "gtest/gtest.h"
 
 inline thread_local bool allocation_failure{false};
 inline const char* allocation_failure_message{"Heap allocation failure"};
