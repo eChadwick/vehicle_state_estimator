@@ -5,36 +5,76 @@
 #include "ZeroAllocationTestFixture.hpp"
 #include "gtest/gtest.h"
 
+template <typename scalarType, int dimension>
+using StateVector = Eigen::Matrix<scalarType, 1, dimension>;
+
+template <typename scalarType, int dimension>
+using Matrix = Eigen::Matrix<scalarType, dimension, dimension>;
+
+template <typename T, int Dim>
+struct KalmanFilterTestParams {
+    StateVector<T, Dim> stateVector = StateVector<T, Dim>::Zero();
+    Matrix<T, Dim> transitionMatrix = Matrix<T, Dim>::Identity();
+    Matrix<T, Dim> errorCovarianceMatrix = Matrix<T, Dim>::Identity();
+    Matrix<T, Dim> processNoiseMatrix = Matrix<T, Dim>::Identity();
+};
+
+template <typename T, int Dim>
+KalmanFilter<T, Dim> KalmanFilterFromParams(KalmanFilterTestParams<T, Dim> params) {
+    return KalmanFilter{params.stateVector, params.transitionMatrix, params.errorCovarianceMatrix,
+                        params.processNoiseMatrix};
+};
+
 class KalmanFilterZeroAllocationTestFixture : public ZeroAllocationTestFixture {
     using ZeroAllocationTestFixture::SetUp;
     using ZeroAllocationTestFixture::TearDown;
 };
 
-template <typename T, int Dim>
-void VerifyKalmanFilterPassthrough() {
-    using StateVector = Eigen::Matrix<T, 1, Dim>;
-    using Matrix = Eigen::Matrix<T, Dim, Dim>;
-
-    StateVector stateVector;
-    Matrix transitionMatrix;
-    Matrix errorCovarianceMatrix;
-    Matrix processNoiseMatrix;
-
-    KalmanFilter<T, Dim> uUt{stateVector, transitionMatrix, errorCovarianceMatrix,
-                             processNoiseMatrix};
-
-    EXPECT_TRUE(stateVector.isApprox(uUt.GetStateVector()));
-    EXPECT_TRUE(transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
-    EXPECT_TRUE(errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
-    EXPECT_TRUE(processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
-}
-
 TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedScalarTypes) {
-    VerifyKalmanFilterPassthrough<double, 2>();
-    VerifyKalmanFilterPassthrough<float, 2>();
+    constexpr int dimension = 2;
+    {
+        KalmanFilterTestParams<double, dimension> params;
+        KalmanFilter<double, dimension> uUt = KalmanFilterFromParams(params);
+
+        EXPECT_TRUE(params.stateVector.isApprox(uUt.GetStateVector()));
+        EXPECT_TRUE(params.transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
+        EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
+        EXPECT_TRUE(params.processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
+    }
+
+    {
+        KalmanFilterTestParams<float, dimension> params;
+        KalmanFilter<float, dimension> uUt = KalmanFilterFromParams(params);
+
+        EXPECT_TRUE(params.stateVector.isApprox(uUt.GetStateVector()));
+        EXPECT_TRUE(params.transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
+        EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
+        EXPECT_TRUE(params.processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
+    }
 }
 
 TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedVectorDimensions) {
-    VerifyKalmanFilterPassthrough<float, 2>();
-    VerifyKalmanFilterPassthrough<float, 3>();
+    using ScalarType = double;
+
+    {
+        constexpr int dimension = 2;
+        KalmanFilterTestParams<ScalarType, dimension> params;
+        KalmanFilter<ScalarType, dimension> uUt = KalmanFilterFromParams(params);
+
+        EXPECT_TRUE(params.stateVector.isApprox(uUt.GetStateVector()));
+        EXPECT_TRUE(params.transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
+        EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
+        EXPECT_TRUE(params.processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
+    }
+
+    {
+        constexpr int dimension = 3;
+        KalmanFilterTestParams<ScalarType, dimension> params;
+        KalmanFilter<ScalarType, dimension> uUt = KalmanFilterFromParams(params);
+
+        EXPECT_TRUE(params.stateVector.isApprox(uUt.GetStateVector()));
+        EXPECT_TRUE(params.transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
+        EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
+        EXPECT_TRUE(params.processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
+    }
 }
