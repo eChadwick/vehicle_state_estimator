@@ -1,0 +1,5 @@
+[
+  {
+    "include": [ "@.*Eigen/src/.*", "private", "<Eigen/Dense>", "public" ]
+  }
+]

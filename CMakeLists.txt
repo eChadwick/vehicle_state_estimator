@@ -7,11 +7,16 @@ project(KalmanFilter CXX)
 option(ENABLE_SANITIZERS "Enable AddressSanitizer and UndefinedBehaviorSanitizer" ON)
 option(ENABLE_COVERAGE   "Enable code coverage instrumentation"                  OFF)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # ==============================================================================
 # Dependencies
 # ==============================================================================
 find_package(Eigen3 REQUIRED)
 find_package(GTest REQUIRED)
+
+find_program(IWYU_PATH NAMES include-what-you-use iwyu)
+find_program(IWYU_TOOL_PATH NAMES iwyu_tool iwyu_tool.py)
 
 # ==============================================================================
 # Core Library Definition (Header-Only Interface)
@@ -36,7 +41,6 @@ target_include_directories(unit_tests PRIVATE tests/fixtures)
 # Compiler Warnings, Hardening, Sanitizers & Coverage (GCC / Clang)
 # ==============================================================================
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-    # Strict Warnings as Errors
     target_compile_options(unit_tests PRIVATE
         -Wall
         -Wextra
@@ -48,7 +52,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
         -Wformat=2
     )
 
-    # Sanitizers
     if(ENABLE_SANITIZERS)
         target_compile_options(unit_tests PRIVATE
             -fsanitize=address,undefined
@@ -60,7 +63,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
         )
     endif()
 
-    # Code Coverage
     if(ENABLE_COVERAGE)
         target_compile_options(unit_tests PRIVATE
             -fprofile-arcs
@@ -75,20 +77,9 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
 endif()
 
 # ==============================================================================
-# Static Analysis (Include-What-You-Use)
-# ==============================================================================
-find_program(IWYU_PATH NAMES include-what-you-use iwyu)
-if(IWYU_PATH)
-    set_target_properties(unit_tests PROPERTIES
-        CXX_INCLUDE_WHAT_YOU_USE "${IWYU_PATH}"
-    )
-else()
-    message(STATUS "IWYU not found; header hygiene checks skipped.")
-endif()
-
-# ==============================================================================
 # Developer Workflow Custom Targets
 # ==============================================================================
+
 add_custom_target(run_tests
     COMMAND ./unit_tests
     DEPENDS unit_tests
@@ -112,3 +103,11 @@ add_custom_target(test_coverage
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     COMMENT "Building, testing, and generating LCOV HTML report (coverage_html/index.html)..."
 )
+
+if(IWYU_PATH AND IWYU_TOOL_PATH)
+    add_custom_target(iwyu
+        COMMAND ${IWYU_TOOL_PATH} -p ${CMAKE_BINARY_DIR} -- -Xiwyu --mapping_file=${CMAKE_SOURCE_DIR}/eigen.imp
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+        COMMENT "Running Include-What-You-Use header analysis..."
+    )
+endif()
