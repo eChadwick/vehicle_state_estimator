@@ -85,3 +85,10 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithAsymmetricErrorCovarianceI
     params.errorCovarianceMatrix(1, 0)++;
     EXPECT_DEATH(KalmanFilterFromParams(params), "");
 }
+
+TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithAsymmetricProcessNoiseIsError) {
+    dynamic_allocation_allowed = true;
+    KalmanFilterTestParams<double, 2> params;
+    params.processNoiseMatrix(1, 0)++;
+    EXPECT_DEATH(KalmanFilterFromParams(params), "");
+}
