@@ -79,8 +79,9 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedVectorDimensions) {
     }
 }
 
-// TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithAsymmetricErrorCovarianceIsError) {
-//     KalmanFilterTestParams<double, 2> params;
-//     params.errorCovarianceMatrix(1, 0)++;
-//     EXPECT_DEATH(KalmanFilterFromParams(params), "");
-// }
+TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithAsymmetricErrorCovarianceIsError) {
+    dynamic_allocation_allowed = true;
+    KalmanFilterTestParams<double, 2> params;
+    params.errorCovarianceMatrix(1, 0)++;
+    EXPECT_DEATH(KalmanFilterFromParams(params), "");
+}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Dense>  // IWYU pragma: keep
+#include <cassert>
 
 template <typename ScalarType, int MatrixDimension>
 class KalmanFilter {
@@ -12,8 +13,10 @@ class KalmanFilter {
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& processNoiseMatrix)
         : mStateVector{state_vector},
           mTransitionMatrix{transitionMatrix},
-          mErrorCovarianceMatrix{errorCovarianceMatrix},
-          mProcessNoiseMatrix{processNoiseMatrix} {}
+          mProcessNoiseMatrix{processNoiseMatrix} {
+        assert(errorCovarianceMatrix.isApprox(errorCovarianceMatrix.transpose()));
+        mErrorCovarianceMatrix = errorCovarianceMatrix;
+    }
 
     const Eigen::Matrix<ScalarType, 1, MatrixDimension>& GetStateVector() const {
         return mStateVector;
