@@ -57,3 +57,14 @@ TEST(ZeroAllocationTestFixtureTest, NothrowArrayOperatorNewTriggersFailure) {
         },
         allocation_failure_message);
 }
+
+TEST(ZeroAllocationTestFixtureTest, AllocationCanBeExplicitlyAllowed) {
+    dynamic_allocation_allowed = true;
+    ConcreteZeroAllocationTestFixture fixture;
+    fixture.SetUp();
+    ::operator delete(::operator new(32));
+    ::operator delete(::operator new(32, std::nothrow));
+    ::operator delete[](::operator new[](32));
+    ::operator delete[](::operator new[](32, std::nothrow));
+    fixture.TearDown();
+}

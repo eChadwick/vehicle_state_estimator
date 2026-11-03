@@ -3,22 +3,30 @@
 #include <cstdlib>
 
 void* operator new(size_t size) {
-    allocation_failure = true;
+    if (!dynamic_allocation_allowed) {
+        allocation_failure = true;
+    }
     return std::malloc(size);
 }
 
 void* operator new(size_t size, const std::nothrow_t&) noexcept {
-    allocation_failure = true;
+    if (!dynamic_allocation_allowed) {
+        allocation_failure = true;
+    }
     return std::malloc(size);
 }
 
 void* operator new[](size_t size) {
-    allocation_failure = true;
+    if (!dynamic_allocation_allowed) {
+        allocation_failure = true;
+    }
     return std::malloc(size);
 }
 
 void* operator new[](size_t size, const std::nothrow_t&) noexcept {
-    allocation_failure = true;
+    if (!dynamic_allocation_allowed) {
+        allocation_failure = true;
+    }
     return std::malloc(size);
 }
 

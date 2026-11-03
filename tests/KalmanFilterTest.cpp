@@ -78,3 +78,9 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedVectorDimensions) {
         EXPECT_TRUE(params.processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
     }
 }
+
+// TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithAsymmetricErrorCovarianceIsError) {
+//     KalmanFilterTestParams<double, 2> params;
+//     params.errorCovarianceMatrix(1, 0)++;
+//     EXPECT_DEATH(KalmanFilterFromParams(params), "");
+// }
