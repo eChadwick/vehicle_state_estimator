@@ -7,13 +7,17 @@ template <typename ScalarType, int MatrixDimension>
 class KalmanFilter {
   public:
     KalmanFilter(
-        const Eigen::Matrix<ScalarType, 1, MatrixDimension>& state_vector,
+        const Eigen::Matrix<ScalarType, 1, MatrixDimension>& stateVector,
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& transitionMatrix,
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& errorCovarianceMatrix,
-        const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& processNoiseMatrix)
-        : mStateVector{state_vector}, mTransitionMatrix{transitionMatrix} {
+        const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& processNoiseMatrix) {
+        assert(stateVector.allFinite());
+        assert(transitionMatrix.allFinite());
         assert(errorCovarianceMatrix.isApprox(errorCovarianceMatrix.transpose()));
         assert(processNoiseMatrix.isApprox(processNoiseMatrix.transpose()));
+
+        mStateVector = stateVector;
+        mTransitionMatrix = transitionMatrix;
         mErrorCovarianceMatrix = errorCovarianceMatrix;
         mProcessNoiseMatrix = processNoiseMatrix;
     }

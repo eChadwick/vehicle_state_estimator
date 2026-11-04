@@ -92,3 +92,36 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithAsymmetricProcessNoiseIsEr
     params.processNoiseMatrix(1, 0)++;
     EXPECT_DEATH(KalmanFilterFromParams(params), "");
 }
+
+TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithInvalidNumericInputsIsError) {
+    dynamic_allocation_allowed = true;
+
+    const double invalidValues[] = {std::numeric_limits<double>::quiet_NaN(),
+                                    std::numeric_limits<double>::infinity()};
+
+    for (double badVal : invalidValues) {
+        {
+            KalmanFilterTestParams<double, 2> params;
+            params.stateVector(0) = badVal;
+            EXPECT_DEATH(KalmanFilterFromParams(params), "");
+        }
+
+        {
+            KalmanFilterTestParams<double, 2> params;
+            params.transitionMatrix(0, 0) = badVal;
+            EXPECT_DEATH(KalmanFilterFromParams(params), "");
+        }
+
+        {
+            KalmanFilterTestParams<double, 2> params;
+            params.errorCovarianceMatrix(0, 0) = badVal;
+            EXPECT_DEATH(KalmanFilterFromParams(params), "");
+        }
+
+        {
+            KalmanFilterTestParams<double, 2> params;
+            params.processNoiseMatrix(0, 0) = badVal;
+            EXPECT_DEATH(KalmanFilterFromParams(params), "");
+        }
+    }
+}
