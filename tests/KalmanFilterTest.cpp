@@ -79,23 +79,19 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedVectorDimensions) {
     }
 }
 
-TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithAsymmetricErrorCovarianceIsError) {
-    dynamic_allocation_allowed = true;
+TEST(KalmanFilterInitTests, InitWithAsymmetricErrorCovarianceIsError) {
     KalmanFilterTestParams<double, 2> params;
     params.errorCovarianceMatrix(1, 0)++;
     EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
 }
 
-TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithAsymmetricProcessNoiseIsError) {
-    dynamic_allocation_allowed = true;
+TEST(KalmanFilterInitTests, InitWithAsymmetricProcessNoiseIsError) {
     KalmanFilterTestParams<double, 2> params;
     params.processNoiseMatrix(1, 0)++;
     EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
 }
 
-TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithInvalidNumericInputsIsError) {
-    dynamic_allocation_allowed = true;
-
+TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
     const double invalidValues[] = {std::numeric_limits<double>::quiet_NaN(),
                                     std::numeric_limits<double>::infinity()};
 

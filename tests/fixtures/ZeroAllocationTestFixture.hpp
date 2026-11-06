@@ -5,7 +5,6 @@
 
 #include "gtest/gtest.h"
 
-inline thread_local bool dynamic_allocation_allowed{false};
 inline thread_local bool allocation_failure{false};
 inline const char* allocation_failure_message{"Heap allocation failure"};
 
