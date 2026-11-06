@@ -11,10 +11,11 @@ class KalmanFilter {
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& transitionMatrix,
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& errorCovarianceMatrix,
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& processNoiseMatrix) {
-        assert(stateVector.allFinite());
-        assert(transitionMatrix.allFinite());
-        assert(errorCovarianceMatrix.isApprox(errorCovarianceMatrix.transpose()));
-        assert(processNoiseMatrix.isApprox(processNoiseMatrix.transpose()));
+        if (!(errorCovarianceMatrix.isApprox(errorCovarianceMatrix.transpose()) &&
+              processNoiseMatrix.isApprox(processNoiseMatrix.transpose()) &&
+              stateVector.allFinite() && transitionMatrix.allFinite())) {
+            throw std::invalid_argument("");
+        }
 
         mStateVector = stateVector;
         mTransitionMatrix = transitionMatrix;

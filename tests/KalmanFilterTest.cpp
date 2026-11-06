@@ -83,14 +83,14 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithAsymmetricErrorCovarianceI
     dynamic_allocation_allowed = true;
     KalmanFilterTestParams<double, 2> params;
     params.errorCovarianceMatrix(1, 0)++;
-    EXPECT_DEATH(KalmanFilterFromParams(params), "");
+    EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
 }
 
 TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithAsymmetricProcessNoiseIsError) {
     dynamic_allocation_allowed = true;
     KalmanFilterTestParams<double, 2> params;
     params.processNoiseMatrix(1, 0)++;
-    EXPECT_DEATH(KalmanFilterFromParams(params), "");
+    EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
 }
 
 TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithInvalidNumericInputsIsError) {
@@ -103,25 +103,25 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, InitWithInvalidNumericInputsIsErro
         {
             KalmanFilterTestParams<double, 2> params;
             params.stateVector(0) = badVal;
-            EXPECT_DEATH(KalmanFilterFromParams(params), "");
+            EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
         }
 
         {
             KalmanFilterTestParams<double, 2> params;
             params.transitionMatrix(0, 0) = badVal;
-            EXPECT_DEATH(KalmanFilterFromParams(params), "");
+            EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
         }
 
         {
             KalmanFilterTestParams<double, 2> params;
             params.errorCovarianceMatrix(0, 0) = badVal;
-            EXPECT_DEATH(KalmanFilterFromParams(params), "");
+            EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
         }
 
         {
             KalmanFilterTestParams<double, 2> params;
             params.processNoiseMatrix(0, 0) = badVal;
-            EXPECT_DEATH(KalmanFilterFromParams(params), "");
+            EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
         }
     }
 }
