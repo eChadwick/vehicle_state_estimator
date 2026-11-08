@@ -82,7 +82,17 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedVectorDimensions) {
 TEST(KalmanFilterInitTests, InitWithAsymmetricErrorCovarianceIsError) {
     KalmanFilterTestParams<double, 2> params;
     params.errorCovarianceMatrix(1, 0)++;
-    EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
+
+    EXPECT_THROW(
+        {
+            try {
+                KalmanFilterFromParams(params);
+            } catch (const std::invalid_argument& e) {
+                EXPECT_STREQ(e.what(), AsymmetricErrorCovarianceError);
+                throw;
+            }
+        },
+        std::invalid_argument);
 }
 
 TEST(KalmanFilterInitTests, InitWithAsymmetricProcessNoiseIsError) {

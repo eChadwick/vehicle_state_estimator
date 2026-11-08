@@ -3,6 +3,9 @@
 #include <Eigen/Dense>  // IWYU pragma: keep
 #include <cassert>
 
+inline constexpr const char* AsymmetricErrorCovarianceError =
+    "KalmanFilter initialization failed: Asymmetric error covariance matrix input";
+
 template <typename ScalarType, int MatrixDimension>
 class KalmanFilter {
   public:
@@ -11,10 +14,13 @@ class KalmanFilter {
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& transitionMatrix,
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& errorCovarianceMatrix,
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& processNoiseMatrix) {
-        if (!(errorCovarianceMatrix.isApprox(errorCovarianceMatrix.transpose()) &&
-              processNoiseMatrix.isApprox(processNoiseMatrix.transpose()) &&
+        if (!(processNoiseMatrix.isApprox(processNoiseMatrix.transpose()) &&
               stateVector.allFinite() && transitionMatrix.allFinite())) {
             throw std::invalid_argument("");
+        }
+
+        if (!errorCovarianceMatrix.isApprox(errorCovarianceMatrix.transpose())) {
+            throw std::invalid_argument(AsymmetricErrorCovarianceError);
         }
 
         mStateVector = stateVector;
