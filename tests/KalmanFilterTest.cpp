@@ -98,7 +98,17 @@ TEST(KalmanFilterInitTests, InitWithAsymmetricErrorCovarianceIsError) {
 TEST(KalmanFilterInitTests, InitWithAsymmetricProcessNoiseIsError) {
     KalmanFilterTestParams<double, 2> params;
     params.processNoiseMatrix(1, 0)++;
-    EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
+
+    EXPECT_THROW(
+        {
+            try {
+                KalmanFilterFromParams(params);
+            } catch (const std::invalid_argument& e) {
+                EXPECT_STREQ(e.what(), AsymmetricProcessNoiseError);
+                throw;
+            }
+        },
+        std::invalid_argument);
 }
 
 TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {

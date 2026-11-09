@@ -5,6 +5,9 @@
 
 inline constexpr const char* AsymmetricErrorCovarianceError =
     "KalmanFilter initialization failed: Asymmetric error covariance matrix input";
+inline constexpr const char* AsymmetricProcessNoiseError =
+    "KalmanFilter initialization failed: Asymmetric process noise matrix input";
+;
 
 template <typename ScalarType, int MatrixDimension>
 class KalmanFilter {
@@ -14,13 +17,15 @@ class KalmanFilter {
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& transitionMatrix,
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& errorCovarianceMatrix,
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& processNoiseMatrix) {
-        if (!(processNoiseMatrix.isApprox(processNoiseMatrix.transpose()) &&
-              stateVector.allFinite() && transitionMatrix.allFinite())) {
+        if (!(stateVector.allFinite() && transitionMatrix.allFinite())) {
             throw std::invalid_argument("");
         }
 
         if (!errorCovarianceMatrix.isApprox(errorCovarianceMatrix.transpose())) {
             throw std::invalid_argument(AsymmetricErrorCovarianceError);
+        }
+        if (!processNoiseMatrix.isApprox(processNoiseMatrix.transpose())) {
+            throw std::invalid_argument(AsymmetricProcessNoiseError);
         }
 
         mStateVector = stateVector;
