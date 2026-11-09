@@ -7,7 +7,14 @@ inline constexpr const char* AsymmetricErrorCovarianceError{
     "KalmanFilter initialization failed: Asymmetric error covariance matrix input"};
 inline constexpr const char* AsymmetricProcessNoiseError{
     "KalmanFilter initialization failed: Asymmetric process noise matrix input"};
-;
+inline constexpr const char* NonFiniteStateVectorError{
+    "KalmanFilter initialization failed: Non-finite state vector input"};
+inline constexpr const char* NonFiniteTransitionMatrixError{
+    "KalmanFilter initialization failed: Non-finite transition matrix input"};
+inline constexpr const char* NonFiniteErrorCovarianceMatrixError{
+    "KalmanFilter initialization failed: Non-finite transition matrix input"};
+inline constexpr const char* NonFiniteProcessNoiseMatrixError{
+    "KalmanFilter initialization failed: Non-finite process noise matrix input"};
 
 template <typename ScalarType, int MatrixDimension>
 class KalmanFilter {
@@ -17,8 +24,17 @@ class KalmanFilter {
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& transitionMatrix,
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& errorCovarianceMatrix,
         const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& processNoiseMatrix) {
-        if (!(stateVector.allFinite() && transitionMatrix.allFinite())) {
-            throw std::invalid_argument("");
+        if (!stateVector.allFinite()) {
+            throw std::invalid_argument(NonFiniteStateVectorError);
+        }
+        if (!transitionMatrix.allFinite()) {
+            throw std::invalid_argument(NonFiniteTransitionMatrixError);
+        }
+        if (!errorCovarianceMatrix.allFinite()) {
+            throw std::invalid_argument(NonFiniteErrorCovarianceMatrixError);
+        }
+        if (!processNoiseMatrix.allFinite()) {
+            throw std::invalid_argument(NonFiniteProcessNoiseMatrixError);
         }
 
         if (!errorCovarianceMatrix.isApprox(errorCovarianceMatrix.transpose())) {

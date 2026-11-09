@@ -119,25 +119,65 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
         {
             KalmanFilterTestParams<double, 2> params;
             params.stateVector(0) = badVal;
-            EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
+
+            EXPECT_THROW(
+                {
+                    try {
+                        KalmanFilterFromParams(params);
+                    } catch (const std::invalid_argument& e) {
+                        EXPECT_STREQ(e.what(), NonFiniteStateVectorError);
+                        throw;
+                    }
+                },
+                std::invalid_argument);
         }
 
         {
             KalmanFilterTestParams<double, 2> params;
             params.transitionMatrix(0, 0) = badVal;
-            EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
+
+            EXPECT_THROW(
+                {
+                    try {
+                        KalmanFilterFromParams(params);
+                    } catch (const std::invalid_argument& e) {
+                        EXPECT_STREQ(e.what(), NonFiniteTransitionMatrixError);
+                        throw;
+                    }
+                },
+                std::invalid_argument);
         }
 
         {
             KalmanFilterTestParams<double, 2> params;
             params.errorCovarianceMatrix(0, 0) = badVal;
-            EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
+
+            EXPECT_THROW(
+                {
+                    try {
+                        KalmanFilterFromParams(params);
+                    } catch (const std::invalid_argument& e) {
+                        EXPECT_STREQ(e.what(), NonFiniteErrorCovarianceMatrixError);
+                        throw;
+                    }
+                },
+                std::invalid_argument);
         }
 
         {
             KalmanFilterTestParams<double, 2> params;
             params.processNoiseMatrix(0, 0) = badVal;
-            EXPECT_THROW(KalmanFilterFromParams(params), std::invalid_argument);
+
+            EXPECT_THROW(
+                {
+                    try {
+                        KalmanFilterFromParams(params);
+                    } catch (const std::invalid_argument& e) {
+                        EXPECT_STREQ(e.what(), NonFiniteProcessNoiseMatrixError);
+                        throw;
+                    }
+                },
+                std::invalid_argument);
         }
     }
 }
