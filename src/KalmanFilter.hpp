@@ -3,10 +3,10 @@
 #include <Eigen/Dense>  // IWYU pragma: keep
 #include <cassert>
 
-inline constexpr const char* AsymmetricErrorCovarianceError =
-    "KalmanFilter initialization failed: Asymmetric error covariance matrix input";
-inline constexpr const char* AsymmetricProcessNoiseError =
-    "KalmanFilter initialization failed: Asymmetric process noise matrix input";
+inline constexpr const char* AsymmetricErrorCovarianceError{
+    "KalmanFilter initialization failed: Asymmetric error covariance matrix input"};
+inline constexpr const char* AsymmetricProcessNoiseError{
+    "KalmanFilter initialization failed: Asymmetric process noise matrix input"};
 ;
 
 template <typename ScalarType, int MatrixDimension>
