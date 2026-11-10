@@ -31,13 +31,10 @@ class KalmanFilter {
     KalmanFilter(const Vector& stateVector, const Matrix& transitionMatrix,
                  const Matrix& errorCovarianceMatrix, const Matrix& processNoiseMatrix) {
         InitStateVector(stateVector);
-        if (!transitionMatrix.allFinite()) {
-            throw std::invalid_argument(KalmanFilterErrors::NonFiniteTransitionMatrix);
-        }
+        InitTransitionMatrix(transitionMatrix);
 
         InitErrorCovariance(errorCovarianceMatrix);
         InitProcessNoise(processNoiseMatrix);
-        mTransitionMatrix = transitionMatrix;
     }
 
     const Vector& GetStateVector() const { return mStateVector; }
@@ -55,6 +52,14 @@ class KalmanFilter {
         }
 
         mStateVector = stateVector;
+    }
+
+    void InitTransitionMatrix(const Matrix& transitionMatrix) {
+        if (!transitionMatrix.allFinite()) {
+            throw std::invalid_argument(KalmanFilterErrors::NonFiniteTransitionMatrix);
+        }
+
+        mTransitionMatrix = transitionMatrix;
     }
 
     void InitErrorCovariance(const Matrix& errorCovarianceMatrix) {
