@@ -19,58 +19,59 @@ inline constexpr const char* NonFiniteProcessNoiseMatrixError{
 template <typename ScalarType, int MatrixDimension>
 class KalmanFilter {
   public:
-    KalmanFilter(
-        const Eigen::Matrix<ScalarType, 1, MatrixDimension>& stateVector,
-        const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& transitionMatrix,
-        const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& errorCovarianceMatrix,
-        const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& processNoiseMatrix) {
+    using Vector = Eigen::Matrix<ScalarType, 1, MatrixDimension>;
+    using Matrix = Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>;
+
+    KalmanFilter(const Vector& stateVector, const Matrix& transitionMatrix,
+                 const Matrix& errorCovarianceMatrix, const Matrix& processNoiseMatrix) {
         if (!stateVector.allFinite()) {
             throw std::invalid_argument(NonFiniteStateVectorError);
         }
         if (!transitionMatrix.allFinite()) {
             throw std::invalid_argument(NonFiniteTransitionMatrixError);
         }
+
+        InitErrorCovariance(errorCovarianceMatrix);
+        InitProcessNoise(processNoiseMatrix);
+        mStateVector = stateVector;
+        mTransitionMatrix = transitionMatrix;
+    }
+
+    const Vector& GetStateVector() const { return mStateVector; }
+
+    const Matrix& GetTransitionMatrix() const { return mTransitionMatrix; }
+
+    const Matrix& GetErrorCovarianceMatrix() const { return mErrorCovarianceMatrix; }
+
+    const Matrix& GetProcessNoiseMatrix() const { return mProcessNoiseMatrix; }
+
+  private:
+    void InitErrorCovariance(const Matrix& errorCovarianceMatrix) {
         if (!errorCovarianceMatrix.allFinite()) {
             throw std::invalid_argument(NonFiniteErrorCovarianceMatrixError);
-        }
-        if (!processNoiseMatrix.allFinite()) {
-            throw std::invalid_argument(NonFiniteProcessNoiseMatrixError);
         }
 
         if (!errorCovarianceMatrix.isApprox(errorCovarianceMatrix.transpose())) {
             throw std::invalid_argument(AsymmetricErrorCovarianceError);
         }
+
+        mErrorCovarianceMatrix = errorCovarianceMatrix;
+    }
+
+    void InitProcessNoise(const Matrix& processNoiseMatrix) {
+        if (!processNoiseMatrix.allFinite()) {
+            throw std::invalid_argument(NonFiniteProcessNoiseMatrixError);
+        }
+
         if (!processNoiseMatrix.isApprox(processNoiseMatrix.transpose())) {
             throw std::invalid_argument(AsymmetricProcessNoiseError);
         }
 
-        mStateVector = stateVector;
-        mTransitionMatrix = transitionMatrix;
-        mErrorCovarianceMatrix = errorCovarianceMatrix;
         mProcessNoiseMatrix = processNoiseMatrix;
     }
 
-    const Eigen::Matrix<ScalarType, 1, MatrixDimension>& GetStateVector() const {
-        return mStateVector;
-    }
-
-    const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& GetTransitionMatrix() const {
-        return mTransitionMatrix;
-    }
-
-    const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& GetErrorCovarianceMatrix()
-        const {
-        return mErrorCovarianceMatrix;
-    }
-
-    const Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>& GetProcessNoiseMatrix()
-        const {
-        return mProcessNoiseMatrix;
-    }
-
-  private:
-    Eigen::Matrix<ScalarType, 1, MatrixDimension> mStateVector;
-    Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension> mTransitionMatrix;
-    Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension> mErrorCovarianceMatrix;
-    Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension> mProcessNoiseMatrix;
+    Vector mStateVector;
+    Matrix mTransitionMatrix;
+    Matrix mErrorCovarianceMatrix;
+    Matrix mProcessNoiseMatrix;
 };

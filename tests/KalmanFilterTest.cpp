@@ -181,3 +181,19 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
         }
     }
 }
+
+// TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefinitiveCovarianceMatrixIsError) {
+//     KalmanFilterTestParams<double, 2> params;
+//     params.errorCovarianceMatrix(1, 1) *= 1;
+
+//     EXPECT_THROW(
+//         {
+//             try {
+//                 KalmanFilterFromParams(params);
+//             } catch (const std::invalid_argument& e) {
+//                 EXPECT_STREQ(e.what(), AsymmetricProcessNoiseError);
+//                 throw;
+//             }
+//         },
+//         std::invalid_argument);
+// }
