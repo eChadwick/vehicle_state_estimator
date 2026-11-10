@@ -15,6 +15,8 @@ inline constexpr const char* NonFiniteErrorCovarianceMatrixError{
     "KalmanFilter initialization failed: Non-finite transition matrix input"};
 inline constexpr const char* NonFiniteProcessNoiseMatrixError{
     "KalmanFilter initialization failed: Non-finite process noise matrix input"};
+inline constexpr const char* NonPositiveSemiDefiniteErrorCovarianceError{
+    "KalmanFilter initialization failed: Non-positve-semi-definite error covariance matrix input"};
 
 template <typename ScalarType, int MatrixDimension>
 class KalmanFilter {
@@ -53,6 +55,12 @@ class KalmanFilter {
 
         if (!errorCovarianceMatrix.isApprox(errorCovarianceMatrix.transpose())) {
             throw std::invalid_argument(AsymmetricErrorCovarianceError);
+        }
+
+        Eigen::SelfAdjointEigenSolver<Matrix> solver(errorCovarianceMatrix, Eigen::EigenvaluesOnly);
+        if (solver.info() != Eigen::Success ||
+            solver.eigenvalues().minCoeff() < static_cast<ScalarType>(-1e-6)) {
+            throw std::invalid_argument(NonPositiveSemiDefiniteErrorCovarianceError);
         }
 
         mErrorCovarianceMatrix = errorCovarianceMatrix;
