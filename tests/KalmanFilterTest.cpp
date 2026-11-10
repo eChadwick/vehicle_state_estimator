@@ -197,3 +197,19 @@ TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteErrorCovarianceMatrix
         },
         std::invalid_argument);
 }
+
+TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteProcessNoiseMatrixIsError) {
+    KalmanFilterTestParams<double, 2> params;
+    params.processNoiseMatrix(1, 1) *= -1;
+
+    EXPECT_THROW(
+        {
+            try {
+                KalmanFilterFromParams(params);
+            } catch (const std::invalid_argument& e) {
+                EXPECT_STREQ(e.what(), NonPositiveSemiDefiniteProcessNoiseError);
+                throw;
+            }
+        },
+        std::invalid_argument);
+}
