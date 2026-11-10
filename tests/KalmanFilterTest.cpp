@@ -88,7 +88,7 @@ TEST(KalmanFilterInitTests, InitWithAsymmetricErrorCovarianceIsError) {
             try {
                 KalmanFilterFromParams(params);
             } catch (const std::invalid_argument& e) {
-                EXPECT_STREQ(e.what(), AsymmetricErrorCovarianceError);
+                EXPECT_STREQ(e.what(), KalmanFilterErrors::AsymmetricErrorCovarianceError);
                 throw;
             }
         },
@@ -104,7 +104,7 @@ TEST(KalmanFilterInitTests, InitWithAsymmetricProcessNoiseIsError) {
             try {
                 KalmanFilterFromParams(params);
             } catch (const std::invalid_argument& e) {
-                EXPECT_STREQ(e.what(), AsymmetricProcessNoiseError);
+                EXPECT_STREQ(e.what(), KalmanFilterErrors::AsymmetricProcessNoiseError);
                 throw;
             }
         },
@@ -125,7 +125,7 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
                     try {
                         KalmanFilterFromParams(params);
                     } catch (const std::invalid_argument& e) {
-                        EXPECT_STREQ(e.what(), NonFiniteStateVectorError);
+                        EXPECT_STREQ(e.what(), KalmanFilterErrors::NonFiniteStateVectorError);
                         throw;
                     }
                 },
@@ -141,7 +141,7 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
                     try {
                         KalmanFilterFromParams(params);
                     } catch (const std::invalid_argument& e) {
-                        EXPECT_STREQ(e.what(), NonFiniteTransitionMatrixError);
+                        EXPECT_STREQ(e.what(), KalmanFilterErrors::NonFiniteTransitionMatrixError);
                         throw;
                     }
                 },
@@ -157,7 +157,8 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
                     try {
                         KalmanFilterFromParams(params);
                     } catch (const std::invalid_argument& e) {
-                        EXPECT_STREQ(e.what(), NonFiniteErrorCovarianceMatrixError);
+                        EXPECT_STREQ(e.what(),
+                                     KalmanFilterErrors::NonFiniteErrorCovarianceMatrixError);
                         throw;
                     }
                 },
@@ -173,7 +174,8 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
                     try {
                         KalmanFilterFromParams(params);
                     } catch (const std::invalid_argument& e) {
-                        EXPECT_STREQ(e.what(), NonFiniteProcessNoiseMatrixError);
+                        EXPECT_STREQ(e.what(),
+                                     KalmanFilterErrors::NonFiniteProcessNoiseMatrixError);
                         throw;
                     }
                 },
@@ -192,7 +194,8 @@ TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteErrorCovarianceMatrix
                 try {
                     KalmanFilterFromParams(params);
                 } catch (const std::invalid_argument& e) {
-                    EXPECT_STREQ(e.what(), NonPositiveSemiDefiniteErrorCovarianceError);
+                    EXPECT_STREQ(e.what(),
+                                 KalmanFilterErrors::NonPositiveSemiDefiniteErrorCovarianceError);
                     throw;
                 }
             },
@@ -208,7 +211,8 @@ TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteErrorCovarianceMatrix
                 try {
                     KalmanFilterFromParams(params);
                 } catch (const std::invalid_argument& e) {
-                    EXPECT_STREQ(e.what(), NonPositiveSemiDefiniteErrorCovarianceError);
+                    EXPECT_STREQ(e.what(),
+                                 KalmanFilterErrors::NonPositiveSemiDefiniteErrorCovarianceError);
                     throw;
                 }
             },
@@ -226,7 +230,8 @@ TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteProcessNoiseMatrixIsE
                 try {
                     KalmanFilterFromParams(params);
                 } catch (const std::invalid_argument& e) {
-                    EXPECT_STREQ(e.what(), NonPositiveSemiDefiniteProcessNoiseError);
+                    EXPECT_STREQ(e.what(),
+                                 KalmanFilterErrors::NonPositiveSemiDefiniteProcessNoiseError);
                     throw;
                 }
             },
@@ -242,7 +247,8 @@ TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteProcessNoiseMatrixIsE
                 try {
                     KalmanFilterFromParams(params);
                 } catch (const std::invalid_argument& e) {
-                    EXPECT_STREQ(e.what(), NonPositiveSemiDefiniteProcessNoiseError);
+                    EXPECT_STREQ(e.what(),
+                                 KalmanFilterErrors::NonPositiveSemiDefiniteProcessNoiseError);
                     throw;
                 }
             },

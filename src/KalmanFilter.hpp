@@ -2,7 +2,7 @@
 
 #include <Eigen/Dense>  // IWYU pragma: keep
 #include <cassert>
-
+namespace KalmanFilterErrors {
 inline constexpr const char* AsymmetricErrorCovarianceError{
     "KalmanFilter initialization failed: Asymmetric error covariance matrix input"};
 inline constexpr const char* AsymmetricProcessNoiseError{
@@ -19,6 +19,7 @@ inline constexpr const char* NonPositiveSemiDefiniteErrorCovarianceError{
     "KalmanFilter initialization failed: Non-positve-semi-definite error covariance matrix input"};
 inline constexpr const char* NonPositiveSemiDefiniteProcessNoiseError{
     "KalmanFilter initialization failed: Non-positve-semi-definite process noise matrix input"};
+}  // namespace KalmanFilterErrors
 
 template <typename ScalarType, int MatrixDimension>
 class KalmanFilter {
@@ -29,10 +30,10 @@ class KalmanFilter {
     KalmanFilter(const Vector& stateVector, const Matrix& transitionMatrix,
                  const Matrix& errorCovarianceMatrix, const Matrix& processNoiseMatrix) {
         if (!stateVector.allFinite()) {
-            throw std::invalid_argument(NonFiniteStateVectorError);
+            throw std::invalid_argument(KalmanFilterErrors::NonFiniteStateVectorError);
         }
         if (!transitionMatrix.allFinite()) {
-            throw std::invalid_argument(NonFiniteTransitionMatrixError);
+            throw std::invalid_argument(KalmanFilterErrors::NonFiniteTransitionMatrixError);
         }
 
         InitErrorCovariance(errorCovarianceMatrix);
@@ -52,17 +53,18 @@ class KalmanFilter {
   private:
     void InitErrorCovariance(const Matrix& errorCovarianceMatrix) {
         if (!errorCovarianceMatrix.allFinite()) {
-            throw std::invalid_argument(NonFiniteErrorCovarianceMatrixError);
+            throw std::invalid_argument(KalmanFilterErrors::NonFiniteErrorCovarianceMatrixError);
         }
 
         if (!errorCovarianceMatrix.isApprox(errorCovarianceMatrix.transpose())) {
-            throw std::invalid_argument(AsymmetricErrorCovarianceError);
+            throw std::invalid_argument(KalmanFilterErrors::AsymmetricErrorCovarianceError);
         }
 
         Eigen::SelfAdjointEigenSolver<Matrix> solver(errorCovarianceMatrix, Eigen::EigenvaluesOnly);
         if (solver.info() != Eigen::Success ||
             solver.eigenvalues().minCoeff() < static_cast<ScalarType>(-1e-6)) {
-            throw std::invalid_argument(NonPositiveSemiDefiniteErrorCovarianceError);
+            throw std::invalid_argument(
+                KalmanFilterErrors::NonPositiveSemiDefiniteErrorCovarianceError);
         }
 
         mErrorCovarianceMatrix = errorCovarianceMatrix;
@@ -70,17 +72,18 @@ class KalmanFilter {
 
     void InitProcessNoise(const Matrix& processNoiseMatrix) {
         if (!processNoiseMatrix.allFinite()) {
-            throw std::invalid_argument(NonFiniteProcessNoiseMatrixError);
+            throw std::invalid_argument(KalmanFilterErrors::NonFiniteProcessNoiseMatrixError);
         }
 
         if (!processNoiseMatrix.isApprox(processNoiseMatrix.transpose())) {
-            throw std::invalid_argument(AsymmetricProcessNoiseError);
+            throw std::invalid_argument(KalmanFilterErrors::AsymmetricProcessNoiseError);
         }
 
         Eigen::SelfAdjointEigenSolver<Matrix> solver(processNoiseMatrix, Eigen::EigenvaluesOnly);
         if (solver.info() != Eigen::Success ||
             solver.eigenvalues().minCoeff() < static_cast<ScalarType>(-1e-6)) {
-            throw std::invalid_argument(NonPositiveSemiDefiniteProcessNoiseError);
+            throw std::invalid_argument(
+                KalmanFilterErrors::NonPositiveSemiDefiniteProcessNoiseError);
         }
 
         mProcessNoiseMatrix = processNoiseMatrix;
