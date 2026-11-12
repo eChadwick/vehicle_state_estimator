@@ -6,7 +6,7 @@
 #include "gtest/gtest.h"
 
 template <typename scalarType, int dimension>
-using StateVector = Eigen::Matrix<scalarType, 1, dimension>;
+using StateVector = Eigen::Matrix<scalarType, dimension, 1>;
 
 template <typename scalarType, int dimension>
 using Matrix = Eigen::Matrix<scalarType, dimension, dimension>;
@@ -77,6 +77,35 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedVectorDimensions) {
         EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
         EXPECT_TRUE(params.processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
     }
+}
+
+TEST_F(KalmanFilterZeroAllocationTestFixture, PredictStep) {
+    using scalarType = double;
+    constexpr int dimension = 2;
+
+    KalmanFilterTestParams<scalarType, dimension> params;
+    params.stateVector << 1, 2;
+    // clang-format off
+    params.transitionMatrix << 1, 2, 
+                               3, 4;
+    params.errorCovarianceMatrix << 2, 1,
+                                    1, 3;
+    params.processNoiseMatrix << 0.5, 0.1,
+                                 0.1, 0.25;
+    // clang-format on
+    KalmanFilter<scalarType, dimension> uUt = KalmanFilterFromParams(params);
+
+    uUt.Predict();
+
+    StateVector<scalarType, dimension> expectedStateVector;
+    expectedStateVector << 5, 11;
+    Matrix<scalarType, dimension> expectedErrorCovarianceMatrix;
+    // clang-format off
+    expectedErrorCovarianceMatrix << 18.5, 40.1,
+                                     40.1, 90.25;
+    // clang-format on
+    EXPECT_TRUE(uUt.GetStateVector().isApprox(expectedStateVector));
+    EXPECT_TRUE(uUt.GetErrorCovarianceMatrix().isApprox(expectedErrorCovarianceMatrix));
 }
 
 TEST(KalmanFilterInitTests, InitWithAsymmetricErrorCovarianceIsError) {

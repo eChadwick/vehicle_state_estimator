@@ -25,7 +25,7 @@ inline constexpr const char* NonPositiveSemiDefiniteProcessNoise{
 template <typename ScalarType, int MatrixDimension>
 class KalmanFilter {
   public:
-    using Vector = Eigen::Matrix<ScalarType, 1, MatrixDimension>;
+    using Vector = Eigen::Matrix<ScalarType, MatrixDimension, 1>;
     using Matrix = Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>;
 
     KalmanFilter(const Vector& stateVector, const Matrix& transitionMatrix,
@@ -35,6 +35,13 @@ class KalmanFilter {
 
         InitErrorCovariance(errorCovarianceMatrix);
         InitProcessNoise(processNoiseMatrix);
+    }
+
+    void Predict() {
+        mStateVector = mTransitionMatrix * mStateVector;
+        mErrorCovarianceMatrix =
+            mTransitionMatrix * mErrorCovarianceMatrix * mTransitionMatrix.transpose() +
+            mProcessNoiseMatrix;
     }
 
     const Vector& GetStateVector() const { return mStateVector; }
