@@ -22,11 +22,11 @@ inline constexpr const char* NonPositiveSemiDefiniteProcessNoise{
     "KalmanFilter initialization failed: Non-positve-semi-definite process noise matrix input"};
 }  // namespace KalmanFilterErrors
 
-template <typename ScalarType, int MatrixDimension>
+template <typename ScalarType, int StateDimension>
 class KalmanFilter {
   public:
-    using Vector = Eigen::Matrix<ScalarType, MatrixDimension, 1>;
-    using Matrix = Eigen::Matrix<ScalarType, MatrixDimension, MatrixDimension>;
+    using Vector = Eigen::Matrix<ScalarType, StateDimension, 1>;
+    using Matrix = Eigen::Matrix<ScalarType, StateDimension, StateDimension>;
 
     KalmanFilter(const Vector& stateVector, const Matrix& transitionMatrix,
                  const Matrix& errorCovarianceMatrix, const Matrix& processNoiseMatrix) {

@@ -5,22 +5,27 @@
 #include "ZeroAllocationTestFixture.hpp"
 #include "gtest/gtest.h"
 
-template <typename scalarType, int dimension>
-using StateVector = Eigen::Matrix<scalarType, dimension, 1>;
+template <typename ScalarType, int dimension>
+using StateVector = Eigen::Matrix<ScalarType, dimension, 1>;
 
-template <typename scalarType, int dimension>
-using Matrix = Eigen::Matrix<scalarType, dimension, dimension>;
+template <typename ScalarType, int dimension>
+using Matrix = Eigen::Matrix<ScalarType, dimension, dimension>;
 
-template <typename T, int Dim>
+template <typename ScalarType, int StateDimension>
 struct KalmanFilterTestParams {
-    StateVector<T, Dim> stateVector = StateVector<T, Dim>::Zero();
-    Matrix<T, Dim> transitionMatrix = Matrix<T, Dim>::Identity();
-    Matrix<T, Dim> errorCovarianceMatrix = Matrix<T, Dim>::Identity();
-    Matrix<T, Dim> processNoiseMatrix = Matrix<T, Dim>::Identity();
+    StateVector<ScalarType, StateDimension> stateVector =
+        StateVector<ScalarType, StateDimension>::Zero();
+    Matrix<ScalarType, StateDimension> transitionMatrix =
+        Matrix<ScalarType, StateDimension>::Identity();
+    Matrix<ScalarType, StateDimension> errorCovarianceMatrix =
+        Matrix<ScalarType, StateDimension>::Identity();
+    Matrix<ScalarType, StateDimension> processNoiseMatrix =
+        Matrix<ScalarType, StateDimension>::Identity();
 };
 
-template <typename T, int Dim>
-KalmanFilter<T, Dim> KalmanFilterFromParams(KalmanFilterTestParams<T, Dim> params) {
+template <typename ScalarType, int StateDimension>
+KalmanFilter<ScalarType, StateDimension> KalmanFilterFromParams(
+    KalmanFilterTestParams<ScalarType, StateDimension> params) {
     return KalmanFilter{params.stateVector, params.transitionMatrix, params.errorCovarianceMatrix,
                         params.processNoiseMatrix};
 };
@@ -31,10 +36,10 @@ class KalmanFilterZeroAllocationTestFixture : public ZeroAllocationTestFixture {
 };
 
 TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedScalarTypes) {
-    constexpr int dimension = 2;
+    constexpr int StateDimension = 2;
     {
-        KalmanFilterTestParams<double, dimension> params;
-        KalmanFilter<double, dimension> uUt = KalmanFilterFromParams(params);
+        KalmanFilterTestParams<double, StateDimension> params;
+        KalmanFilter<double, StateDimension> uUt = KalmanFilterFromParams(params);
 
         EXPECT_TRUE(params.stateVector.isApprox(uUt.GetStateVector()));
         EXPECT_TRUE(params.transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
@@ -43,8 +48,8 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedScalarTypes) {
     }
 
     {
-        KalmanFilterTestParams<float, dimension> params;
-        KalmanFilter<float, dimension> uUt = KalmanFilterFromParams(params);
+        KalmanFilterTestParams<float, StateDimension> params;
+        KalmanFilter<float, StateDimension> uUt = KalmanFilterFromParams(params);
 
         EXPECT_TRUE(params.stateVector.isApprox(uUt.GetStateVector()));
         EXPECT_TRUE(params.transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
@@ -53,13 +58,13 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedScalarTypes) {
     }
 }
 
-TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedVectorDimensions) {
+TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedStateDimensions) {
     using ScalarType = double;
 
     {
-        constexpr int dimension = 2;
-        KalmanFilterTestParams<ScalarType, dimension> params;
-        KalmanFilter<ScalarType, dimension> uUt = KalmanFilterFromParams(params);
+        constexpr int StateDimension = 2;
+        KalmanFilterTestParams<ScalarType, StateDimension> params;
+        KalmanFilter<ScalarType, StateDimension> uUt = KalmanFilterFromParams(params);
 
         EXPECT_TRUE(params.stateVector.isApprox(uUt.GetStateVector()));
         EXPECT_TRUE(params.transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
@@ -68,9 +73,9 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedVectorDimensions) {
     }
 
     {
-        constexpr int dimension = 3;
-        KalmanFilterTestParams<ScalarType, dimension> params;
-        KalmanFilter<ScalarType, dimension> uUt = KalmanFilterFromParams(params);
+        constexpr int StateDimension = 3;
+        KalmanFilterTestParams<ScalarType, StateDimension> params;
+        KalmanFilter<ScalarType, StateDimension> uUt = KalmanFilterFromParams(params);
 
         EXPECT_TRUE(params.stateVector.isApprox(uUt.GetStateVector()));
         EXPECT_TRUE(params.transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
@@ -80,10 +85,10 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedVectorDimensions) {
 }
 
 TEST_F(KalmanFilterZeroAllocationTestFixture, PredictStep) {
-    using scalarType = double;
-    constexpr int dimension = 2;
+    using ScalarType = double;
+    constexpr int StateDimension = 2;
 
-    KalmanFilterTestParams<scalarType, dimension> params;
+    KalmanFilterTestParams<ScalarType, StateDimension> params;
     params.stateVector << 1, 2;
     // clang-format off
     params.transitionMatrix << 1, 2, 
@@ -93,13 +98,13 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, PredictStep) {
     params.processNoiseMatrix << 0.5, 0.1,
                                  0.1, 0.25;
     // clang-format on
-    KalmanFilter<scalarType, dimension> uUt = KalmanFilterFromParams(params);
+    KalmanFilter<ScalarType, StateDimension> uUt = KalmanFilterFromParams(params);
 
     uUt.Predict();
 
-    StateVector<scalarType, dimension> expectedStateVector;
+    StateVector<ScalarType, StateDimension> expectedStateVector;
     expectedStateVector << 5, 11;
-    Matrix<scalarType, dimension> expectedErrorCovarianceMatrix;
+    Matrix<ScalarType, StateDimension> expectedErrorCovarianceMatrix;
     // clang-format off
     expectedErrorCovarianceMatrix << 18.5, 40.1,
                                      40.1, 90.25;
