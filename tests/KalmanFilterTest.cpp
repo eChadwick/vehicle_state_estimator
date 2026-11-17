@@ -24,6 +24,15 @@ struct KalmanFilterTestParams {
 };
 
 template <typename ScalarType, int StateDimension>
+void EXPECT_FILTER_EQ(const KalmanFilter<ScalarType, StateDimension>& filter,
+                      const KalmanFilterTestParams<ScalarType, StateDimension>& params) {
+    EXPECT_TRUE(params.stateVector.isApprox(filter.GetStateVector()));
+    EXPECT_TRUE(params.transitionMatrix.isApprox(filter.GetTransitionMatrix()));
+    EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(filter.GetErrorCovarianceMatrix()));
+    EXPECT_TRUE(params.processNoiseMatrix.isApprox(filter.GetProcessNoiseMatrix()));
+}
+
+template <typename ScalarType, int StateDimension>
 KalmanFilter<ScalarType, StateDimension> KalmanFilterFromParams(
     KalmanFilterTestParams<ScalarType, StateDimension> params) {
     return KalmanFilter{params.stateVector, params.transitionMatrix, params.errorCovarianceMatrix,
@@ -38,23 +47,19 @@ class KalmanFilterZeroAllocationTestFixture : public ZeroAllocationTestFixture {
 TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedScalarTypes) {
     constexpr int StateDimension = 2;
     {
-        KalmanFilterTestParams<double, StateDimension> params;
-        KalmanFilter<double, StateDimension> uUt = KalmanFilterFromParams(params);
+        using ScalarType = double;
+        KalmanFilterTestParams<ScalarType, StateDimension> params;
+        KalmanFilter<ScalarType, StateDimension> uUt = KalmanFilterFromParams(params);
 
-        EXPECT_TRUE(params.stateVector.isApprox(uUt.GetStateVector()));
-        EXPECT_TRUE(params.transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
-        EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
-        EXPECT_TRUE(params.processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
+        EXPECT_FILTER_EQ(uUt, params);
     }
 
     {
-        KalmanFilterTestParams<float, StateDimension> params;
-        KalmanFilter<float, StateDimension> uUt = KalmanFilterFromParams(params);
+        using ScalarType = float;
+        KalmanFilterTestParams<ScalarType, StateDimension> params;
+        KalmanFilter<ScalarType, StateDimension> uUt = KalmanFilterFromParams(params);
 
-        EXPECT_TRUE(params.stateVector.isApprox(uUt.GetStateVector()));
-        EXPECT_TRUE(params.transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
-        EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
-        EXPECT_TRUE(params.processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
+        EXPECT_FILTER_EQ(uUt, params);
     }
 }
 
@@ -66,10 +71,7 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedStateDimensions) {
         KalmanFilterTestParams<ScalarType, StateDimension> params;
         KalmanFilter<ScalarType, StateDimension> uUt = KalmanFilterFromParams(params);
 
-        EXPECT_TRUE(params.stateVector.isApprox(uUt.GetStateVector()));
-        EXPECT_TRUE(params.transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
-        EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
-        EXPECT_TRUE(params.processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
+        EXPECT_FILTER_EQ(uUt, params);
     }
 
     {
@@ -77,10 +79,7 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedStateDimensions) {
         KalmanFilterTestParams<ScalarType, StateDimension> params;
         KalmanFilter<ScalarType, StateDimension> uUt = KalmanFilterFromParams(params);
 
-        EXPECT_TRUE(params.stateVector.isApprox(uUt.GetStateVector()));
-        EXPECT_TRUE(params.transitionMatrix.isApprox(uUt.GetTransitionMatrix()));
-        EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(uUt.GetErrorCovarianceMatrix()));
-        EXPECT_TRUE(params.processNoiseMatrix.isApprox(uUt.GetProcessNoiseMatrix()));
+        EXPECT_FILTER_EQ(uUt, params);
     }
 }
 
