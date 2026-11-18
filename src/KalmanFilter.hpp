@@ -16,6 +16,8 @@ inline constexpr const char* NonFiniteErrorCovarianceMatrix{
     "KalmanFilter initialization failed: Non-finite transition matrix input"};
 inline constexpr const char* NonFiniteProcessNoiseMatrix{
     "KalmanFilter initialization failed: Non-finite process noise matrix input"};
+inline constexpr const char* NonFiniteMeasurementMatrix{
+    "KalmanFilter initialization failed: Non-finite measurement matrix input"};
 inline constexpr const char* NonPositiveSemiDefiniteErrorCovariance{
     "KalmanFilter initialization failed: Non-positve-semi-definite error covariance matrix input"};
 inline constexpr const char* NonPositiveSemiDefiniteProcessNoise{
@@ -34,11 +36,9 @@ class KalmanFilter {
         const Eigen::Matrix<ScalarType, SensorDimension, StateDimension>& measurementMatrix) {
         InitStateVector(stateVector);
         InitTransitionMatrix(transitionMatrix);
-
         InitErrorCovariance(errorCovarianceMatrix);
         InitProcessNoise(processNoiseMatrix);
-
-        mMeasurementMatrix = measurementMatrix;
+        InitMeasurementMatrix(measurementMatrix);
     }
 
     void Predict() {
@@ -111,6 +111,15 @@ class KalmanFilter {
         }
 
         mProcessNoiseMatrix = processNoiseMatrix;
+    }
+
+    void InitMeasurementMatrix(
+        const Eigen::Matrix<ScalarType, SensorDimension, StateDimension>& measurementMatrix) {
+        if (!measurementMatrix.allFinite()) {
+            throw std::invalid_argument(KalmanFilterErrors::NonFiniteMeasurementMatrix);
+        }
+
+        mMeasurementMatrix = measurementMatrix;
     }
 
     Vector mStateVector;

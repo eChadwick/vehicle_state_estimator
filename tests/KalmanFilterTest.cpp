@@ -246,6 +246,22 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
                 },
                 std::invalid_argument);
         }
+
+        {
+            KalmanFilterTestParams<double, 2, 3> params;
+            params.measurementMatrix(0, 0) = badVal;
+
+            EXPECT_THROW(
+                {
+                    try {
+                        KalmanFilterFromParams(params);
+                    } catch (const std::invalid_argument& e) {
+                        EXPECT_STREQ(e.what(), KalmanFilterErrors::NonFiniteMeasurementMatrix);
+                        throw;
+                    }
+                },
+                std::invalid_argument);
+        }
     }
 }
 
