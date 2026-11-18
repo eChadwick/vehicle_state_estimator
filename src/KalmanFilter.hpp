@@ -22,19 +22,23 @@ inline constexpr const char* NonPositiveSemiDefiniteProcessNoise{
     "KalmanFilter initialization failed: Non-positve-semi-definite process noise matrix input"};
 }  // namespace KalmanFilterErrors
 
-template <typename ScalarType, int StateDimension>
+template <typename ScalarType, int StateDimension, int SensorDimension>
 class KalmanFilter {
   public:
     using Vector = Eigen::Matrix<ScalarType, StateDimension, 1>;
     using Matrix = Eigen::Matrix<ScalarType, StateDimension, StateDimension>;
 
-    KalmanFilter(const Vector& stateVector, const Matrix& transitionMatrix,
-                 const Matrix& errorCovarianceMatrix, const Matrix& processNoiseMatrix) {
+    KalmanFilter(
+        const Vector& stateVector, const Matrix& transitionMatrix,
+        const Matrix& errorCovarianceMatrix, const Matrix& processNoiseMatrix,
+        const Eigen::Matrix<ScalarType, SensorDimension, StateDimension>& measurementMatrix) {
         InitStateVector(stateVector);
         InitTransitionMatrix(transitionMatrix);
 
         InitErrorCovariance(errorCovarianceMatrix);
         InitProcessNoise(processNoiseMatrix);
+
+        mMeasurementMatrix = measurementMatrix;
     }
 
     void Predict() {
@@ -51,6 +55,10 @@ class KalmanFilter {
     const Matrix& GetErrorCovarianceMatrix() const { return mErrorCovarianceMatrix; }
 
     const Matrix& GetProcessNoiseMatrix() const { return mProcessNoiseMatrix; }
+
+    const Eigen::Matrix<ScalarType, SensorDimension, StateDimension>& GetMeasurementMatrix() const {
+        return mMeasurementMatrix;
+    }
 
   private:
     void InitStateVector(const Vector& stateVector) {
@@ -109,4 +117,5 @@ class KalmanFilter {
     Matrix mTransitionMatrix;
     Matrix mErrorCovarianceMatrix;
     Matrix mProcessNoiseMatrix;
+    Eigen::Matrix<ScalarType, SensorDimension, StateDimension> mMeasurementMatrix;
 };

@@ -11,7 +11,7 @@ using StateVector = Eigen::Matrix<ScalarType, dimension, 1>;
 template <typename ScalarType, int dimension>
 using Matrix = Eigen::Matrix<ScalarType, dimension, dimension>;
 
-template <typename ScalarType, int StateDimension>
+template <typename ScalarType, int StateDimension, int SensorDimension>
 struct KalmanFilterTestParams {
     StateVector<ScalarType, StateDimension> stateVector =
         StateVector<ScalarType, StateDimension>::Zero();
@@ -21,22 +21,26 @@ struct KalmanFilterTestParams {
         Matrix<ScalarType, StateDimension>::Identity();
     Matrix<ScalarType, StateDimension> processNoiseMatrix =
         Matrix<ScalarType, StateDimension>::Identity();
+    Eigen::Matrix<ScalarType, SensorDimension, StateDimension> measurementMatrix =
+        Eigen::Matrix<ScalarType, SensorDimension, StateDimension>::Identity();
 };
 
-template <typename ScalarType, int StateDimension>
-void EXPECT_FILTER_EQ(const KalmanFilter<ScalarType, StateDimension>& filter,
-                      const KalmanFilterTestParams<ScalarType, StateDimension>& params) {
+template <typename ScalarType, int StateDimension, int SensorDimension>
+void EXPECT_FILTER_EQ(
+    const KalmanFilter<ScalarType, StateDimension, SensorDimension>& filter,
+    const KalmanFilterTestParams<ScalarType, StateDimension, SensorDimension>& params) {
     EXPECT_TRUE(params.stateVector.isApprox(filter.GetStateVector()));
     EXPECT_TRUE(params.transitionMatrix.isApprox(filter.GetTransitionMatrix()));
     EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(filter.GetErrorCovarianceMatrix()));
     EXPECT_TRUE(params.processNoiseMatrix.isApprox(filter.GetProcessNoiseMatrix()));
+    EXPECT_TRUE(params.measurementMatrix.isApprox(filter.GetMeasurementMatrix()));
 }
 
-template <typename ScalarType, int StateDimension>
-KalmanFilter<ScalarType, StateDimension> KalmanFilterFromParams(
-    KalmanFilterTestParams<ScalarType, StateDimension> params) {
+template <typename ScalarType, int StateDimension, int SensorDimension>
+KalmanFilter<ScalarType, StateDimension, SensorDimension> KalmanFilterFromParams(
+    KalmanFilterTestParams<ScalarType, StateDimension, SensorDimension> params) {
     return KalmanFilter{params.stateVector, params.transitionMatrix, params.errorCovarianceMatrix,
-                        params.processNoiseMatrix};
+                        params.processNoiseMatrix, params.measurementMatrix};
 };
 
 class KalmanFilterZeroAllocationTestFixture : public ZeroAllocationTestFixture {
@@ -46,18 +50,21 @@ class KalmanFilterZeroAllocationTestFixture : public ZeroAllocationTestFixture {
 
 TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedScalarTypes) {
     constexpr int StateDimension = 2;
+    constexpr int SensorDimension = 2;
     {
         using ScalarType = double;
-        KalmanFilterTestParams<ScalarType, StateDimension> params;
-        KalmanFilter<ScalarType, StateDimension> uUt = KalmanFilterFromParams(params);
+        KalmanFilterTestParams<ScalarType, StateDimension, SensorDimension> params;
+        KalmanFilter<ScalarType, StateDimension, SensorDimension> uUt =
+            KalmanFilterFromParams(params);
 
         EXPECT_FILTER_EQ(uUt, params);
     }
 
     {
         using ScalarType = float;
-        KalmanFilterTestParams<ScalarType, StateDimension> params;
-        KalmanFilter<ScalarType, StateDimension> uUt = KalmanFilterFromParams(params);
+        KalmanFilterTestParams<ScalarType, StateDimension, SensorDimension> params;
+        KalmanFilter<ScalarType, StateDimension, SensorDimension> uUt =
+            KalmanFilterFromParams(params);
 
         EXPECT_FILTER_EQ(uUt, params);
     }
@@ -65,19 +72,22 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedScalarTypes) {
 
 TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedStateDimensions) {
     using ScalarType = double;
+    constexpr int SensorDimension = 2;
 
     {
         constexpr int StateDimension = 2;
-        KalmanFilterTestParams<ScalarType, StateDimension> params;
-        KalmanFilter<ScalarType, StateDimension> uUt = KalmanFilterFromParams(params);
+        KalmanFilterTestParams<ScalarType, StateDimension, SensorDimension> params;
+        KalmanFilter<ScalarType, StateDimension, SensorDimension> uUt =
+            KalmanFilterFromParams(params);
 
         EXPECT_FILTER_EQ(uUt, params);
     }
 
     {
         constexpr int StateDimension = 3;
-        KalmanFilterTestParams<ScalarType, StateDimension> params;
-        KalmanFilter<ScalarType, StateDimension> uUt = KalmanFilterFromParams(params);
+        KalmanFilterTestParams<ScalarType, StateDimension, SensorDimension> params;
+        KalmanFilter<ScalarType, StateDimension, SensorDimension> uUt =
+            KalmanFilterFromParams(params);
 
         EXPECT_FILTER_EQ(uUt, params);
     }
@@ -86,8 +96,9 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedStateDimensions) {
 TEST_F(KalmanFilterZeroAllocationTestFixture, PredictStep) {
     using ScalarType = double;
     constexpr int StateDimension = 2;
+    constexpr int SensorDimension = 2;
 
-    KalmanFilterTestParams<ScalarType, StateDimension> params;
+    KalmanFilterTestParams<ScalarType, StateDimension, SensorDimension> params;
     params.stateVector << 1, 2;
     // clang-format off
     params.transitionMatrix << 1, 2, 
@@ -97,7 +108,7 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, PredictStep) {
     params.processNoiseMatrix << 0.5, 0.1,
                                  0.1, 0.25;
     // clang-format on
-    KalmanFilter<ScalarType, StateDimension> uUt = KalmanFilterFromParams(params);
+    KalmanFilter<ScalarType, StateDimension, SensorDimension> uUt = KalmanFilterFromParams(params);
 
     uUt.Predict();
 
@@ -113,7 +124,7 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, PredictStep) {
 }
 
 TEST(KalmanFilterInitTests, InitWithAsymmetricErrorCovarianceIsError) {
-    KalmanFilterTestParams<double, 2> params;
+    KalmanFilterTestParams<double, 2, 3> params;
     params.errorCovarianceMatrix(1, 0)++;
 
     EXPECT_THROW(
@@ -129,7 +140,7 @@ TEST(KalmanFilterInitTests, InitWithAsymmetricErrorCovarianceIsError) {
 }
 
 TEST(KalmanFilterInitTests, InitWithAsymmetricProcessNoiseIsError) {
-    KalmanFilterTestParams<double, 2> params;
+    KalmanFilterTestParams<double, 2, 3> params;
     params.processNoiseMatrix(1, 0)++;
 
     EXPECT_THROW(
@@ -150,7 +161,7 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
 
     for (double badVal : invalidValues) {
         {
-            KalmanFilterTestParams<double, 2> params;
+            KalmanFilterTestParams<double, 2, 3> params;
             params.stateVector(0) = badVal;
 
             EXPECT_THROW(
@@ -166,7 +177,7 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
         }
 
         {
-            KalmanFilterTestParams<double, 2> params;
+            KalmanFilterTestParams<double, 2, 3> params;
             params.transitionMatrix(0, 0) = badVal;
 
             EXPECT_THROW(
@@ -182,7 +193,7 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
         }
 
         {
-            KalmanFilterTestParams<double, 2> params;
+            KalmanFilterTestParams<double, 2, 3> params;
             params.errorCovarianceMatrix(0, 0) = badVal;
 
             EXPECT_THROW(
@@ -198,7 +209,7 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
         }
 
         {
-            KalmanFilterTestParams<double, 2> params;
+            KalmanFilterTestParams<double, 2, 3> params;
             params.processNoiseMatrix(0, 0) = badVal;
 
             EXPECT_THROW(
@@ -217,7 +228,7 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
 
 TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteErrorCovarianceMatrixIsError) {
     {
-        KalmanFilterTestParams<double, 2> params;
+        KalmanFilterTestParams<double, 2, 3> params;
         params.errorCovarianceMatrix(1, 1) *= -1;
 
         EXPECT_THROW(
@@ -234,7 +245,7 @@ TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteErrorCovarianceMatrix
     }
 
     {
-        KalmanFilterTestParams<double, 2> params;
+        KalmanFilterTestParams<double, 2, 3> params;
         params.errorCovarianceMatrix << 1.0, 5.0, 5.0, 1.0;
 
         EXPECT_THROW(
@@ -253,7 +264,7 @@ TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteErrorCovarianceMatrix
 
 TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteProcessNoiseMatrixIsError) {
     {
-        KalmanFilterTestParams<double, 2> params;
+        KalmanFilterTestParams<double, 2, 3> params;
         params.processNoiseMatrix(1, 1) *= -1;
 
         EXPECT_THROW(
@@ -269,7 +280,7 @@ TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteProcessNoiseMatrixIsE
     }
 
     {
-        KalmanFilterTestParams<double, 2> params;
+        KalmanFilterTestParams<double, 2, 3> params;
         params.processNoiseMatrix << 1.0, 5.0, 5.0, 1.0;
 
         EXPECT_THROW(
