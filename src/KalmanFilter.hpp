@@ -27,12 +27,12 @@ inline constexpr const char* NonPositiveSemiDefiniteProcessNoise{
 template <typename ScalarType, int StateDimension, int SensorDimension>
 class KalmanFilter {
   public:
-    using Vector = Eigen::Matrix<ScalarType, StateDimension, 1>;
-    using Matrix = Eigen::Matrix<ScalarType, StateDimension, StateDimension>;
+    using StateSpaceVector = Eigen::Matrix<ScalarType, StateDimension, 1>;
+    using StateSpaceMatrix = Eigen::Matrix<ScalarType, StateDimension, StateDimension>;
 
     KalmanFilter(
-        const Vector& stateVector, const Matrix& transitionMatrix,
-        const Matrix& errorCovarianceMatrix, const Matrix& processNoiseMatrix,
+        const StateSpaceVector& stateVector, const StateSpaceMatrix& transitionMatrix,
+        const StateSpaceMatrix& errorCovarianceMatrix, const StateSpaceMatrix& processNoiseMatrix,
         const Eigen::Matrix<ScalarType, SensorDimension, StateDimension>& measurementMatrix) {
         InitStateVector(stateVector);
         InitTransitionMatrix(transitionMatrix);
@@ -48,20 +48,20 @@ class KalmanFilter {
             mProcessNoiseMatrix;
     }
 
-    const Vector& GetStateVector() const { return mStateVector; }
+    const StateSpaceVector& GetStateVector() const { return mStateVector; }
 
-    const Matrix& GetTransitionMatrix() const { return mTransitionMatrix; }
+    const StateSpaceMatrix& GetTransitionMatrix() const { return mTransitionMatrix; }
 
-    const Matrix& GetErrorCovarianceMatrix() const { return mErrorCovarianceMatrix; }
+    const StateSpaceMatrix& GetErrorCovarianceMatrix() const { return mErrorCovarianceMatrix; }
 
-    const Matrix& GetProcessNoiseMatrix() const { return mProcessNoiseMatrix; }
+    const StateSpaceMatrix& GetProcessNoiseMatrix() const { return mProcessNoiseMatrix; }
 
     const Eigen::Matrix<ScalarType, SensorDimension, StateDimension>& GetMeasurementMatrix() const {
         return mMeasurementMatrix;
     }
 
   private:
-    void InitStateVector(const Vector& stateVector) {
+    void InitStateVector(const StateSpaceVector& stateVector) {
         if (!stateVector.allFinite()) {
             throw std::invalid_argument(KalmanFilterErrors::NonFiniteStateVector);
         }
@@ -69,7 +69,7 @@ class KalmanFilter {
         mStateVector = stateVector;
     }
 
-    void InitTransitionMatrix(const Matrix& transitionMatrix) {
+    void InitTransitionMatrix(const StateSpaceMatrix& transitionMatrix) {
         if (!transitionMatrix.allFinite()) {
             throw std::invalid_argument(KalmanFilterErrors::NonFiniteTransitionMatrix);
         }
@@ -77,7 +77,7 @@ class KalmanFilter {
         mTransitionMatrix = transitionMatrix;
     }
 
-    void InitErrorCovariance(const Matrix& errorCovarianceMatrix) {
+    void InitErrorCovariance(const StateSpaceMatrix& errorCovarianceMatrix) {
         if (!errorCovarianceMatrix.allFinite()) {
             throw std::invalid_argument(KalmanFilterErrors::NonFiniteErrorCovarianceMatrix);
         }
@@ -86,7 +86,8 @@ class KalmanFilter {
             throw std::invalid_argument(KalmanFilterErrors::AsymmetricErrorCovariance);
         }
 
-        Eigen::SelfAdjointEigenSolver<Matrix> solver(errorCovarianceMatrix, Eigen::EigenvaluesOnly);
+        Eigen::SelfAdjointEigenSolver<StateSpaceMatrix> solver(errorCovarianceMatrix,
+                                                               Eigen::EigenvaluesOnly);
         if (solver.info() != Eigen::Success ||
             solver.eigenvalues().minCoeff() < static_cast<ScalarType>(-1e-6)) {
             throw std::invalid_argument(KalmanFilterErrors::NonPositiveSemiDefiniteErrorCovariance);
@@ -95,7 +96,7 @@ class KalmanFilter {
         mErrorCovarianceMatrix = errorCovarianceMatrix;
     }
 
-    void InitProcessNoise(const Matrix& processNoiseMatrix) {
+    void InitProcessNoise(const StateSpaceMatrix& processNoiseMatrix) {
         if (!processNoiseMatrix.allFinite()) {
             throw std::invalid_argument(KalmanFilterErrors::NonFiniteProcessNoiseMatrix);
         }
@@ -104,7 +105,8 @@ class KalmanFilter {
             throw std::invalid_argument(KalmanFilterErrors::AsymmetricProcessNoise);
         }
 
-        Eigen::SelfAdjointEigenSolver<Matrix> solver(processNoiseMatrix, Eigen::EigenvaluesOnly);
+        Eigen::SelfAdjointEigenSolver<StateSpaceMatrix> solver(processNoiseMatrix,
+                                                               Eigen::EigenvaluesOnly);
         if (solver.info() != Eigen::Success ||
             solver.eigenvalues().minCoeff() < static_cast<ScalarType>(-1e-6)) {
             throw std::invalid_argument(KalmanFilterErrors::NonPositiveSemiDefiniteProcessNoise);
@@ -122,9 +124,9 @@ class KalmanFilter {
         mMeasurementMatrix = measurementMatrix;
     }
 
-    Vector mStateVector;
-    Matrix mTransitionMatrix;
-    Matrix mErrorCovarianceMatrix;
-    Matrix mProcessNoiseMatrix;
+    StateSpaceVector mStateVector;
+    StateSpaceMatrix mTransitionMatrix;
+    StateSpaceMatrix mErrorCovarianceMatrix;
+    StateSpaceMatrix mProcessNoiseMatrix;
     Eigen::Matrix<ScalarType, SensorDimension, StateDimension> mMeasurementMatrix;
 };
