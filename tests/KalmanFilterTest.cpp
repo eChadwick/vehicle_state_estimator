@@ -93,6 +93,29 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedStateDimensions) {
     }
 }
 
+TEST_F(KalmanFilterZeroAllocationTestFixture, TemplatizedSensorDimension) {
+    using ScalarType = double;
+    constexpr int StateDimension = 2;
+
+    {
+        constexpr int SensorDimension = 2;
+        KalmanFilterTestParams<ScalarType, StateDimension, SensorDimension> params;
+        KalmanFilter<ScalarType, StateDimension, SensorDimension> uUt =
+            KalmanFilterFromParams(params);
+
+        EXPECT_FILTER_EQ(uUt, params);
+    }
+
+    {
+        constexpr int SensorDimension = 3;
+        KalmanFilterTestParams<ScalarType, StateDimension, SensorDimension> params;
+        KalmanFilter<ScalarType, StateDimension, SensorDimension> uUt =
+            KalmanFilterFromParams(params);
+
+        EXPECT_FILTER_EQ(uUt, params);
+    }
+}
+
 TEST_F(KalmanFilterZeroAllocationTestFixture, PredictStep) {
     using ScalarType = double;
     constexpr int StateDimension = 2;
