@@ -5,11 +5,11 @@
 #include "ZeroAllocationTestFixture.hpp"
 #include "gtest/gtest.h"
 
-template <typename ScalarType, int dimension>
-using StateSpaceVector = Eigen::Matrix<ScalarType, dimension, 1>;
+template <typename ScalarType, int Dimension>
+using StateSpaceVector = Eigen::Matrix<ScalarType, Dimension, 1>;
 
-template <typename ScalarType, int dimension>
-using StateSpaceMatrix = Eigen::Matrix<ScalarType, dimension, dimension>;
+template <typename ScalarType, int Dimension>
+using StateSpaceMatrix = Eigen::Matrix<ScalarType, Dimension, Dimension>;
 
 template <typename ScalarType, int SensorDimension, int StateDimension>
 using MeasurementMatrix = Eigen::Matrix<ScalarType, SensorDimension, StateDimension>;
