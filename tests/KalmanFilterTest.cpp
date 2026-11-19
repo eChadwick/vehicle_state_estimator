@@ -6,23 +6,26 @@
 #include "gtest/gtest.h"
 
 template <typename ScalarType, int dimension>
-using StateVector = Eigen::Matrix<ScalarType, dimension, 1>;
+using StateSpaceVector = Eigen::Matrix<ScalarType, dimension, 1>;
 
 template <typename ScalarType, int dimension>
-using Matrix = Eigen::Matrix<ScalarType, dimension, dimension>;
+using StateSpaceMatrix = Eigen::Matrix<ScalarType, dimension, dimension>;
+
+template <typename ScalarType, int SensorDimension, int StateDimension>
+using MeasurementMatrix = Eigen::Matrix<ScalarType, SensorDimension, StateDimension>;
 
 template <typename ScalarType, int StateDimension, int SensorDimension>
 struct KalmanFilterTestParams {
-    StateVector<ScalarType, StateDimension> stateVector =
-        StateVector<ScalarType, StateDimension>::Zero();
-    Matrix<ScalarType, StateDimension> transitionMatrix =
-        Matrix<ScalarType, StateDimension>::Identity();
-    Matrix<ScalarType, StateDimension> errorCovarianceMatrix =
-        Matrix<ScalarType, StateDimension>::Identity();
-    Matrix<ScalarType, StateDimension> processNoiseMatrix =
-        Matrix<ScalarType, StateDimension>::Identity();
-    Eigen::Matrix<ScalarType, SensorDimension, StateDimension> measurementMatrix =
-        Eigen::Matrix<ScalarType, SensorDimension, StateDimension>::Identity();
+    StateSpaceVector<ScalarType, StateDimension> stateVector =
+        StateSpaceVector<ScalarType, StateDimension>::Zero();
+    StateSpaceMatrix<ScalarType, StateDimension> transitionMatrix =
+        StateSpaceMatrix<ScalarType, StateDimension>::Identity();
+    StateSpaceMatrix<ScalarType, StateDimension> errorCovarianceMatrix =
+        StateSpaceMatrix<ScalarType, StateDimension>::Identity();
+    StateSpaceMatrix<ScalarType, StateDimension> processNoiseMatrix =
+        StateSpaceMatrix<ScalarType, StateDimension>::Identity();
+    MeasurementMatrix<ScalarType, SensorDimension, StateDimension> measurementMatrix =
+        MeasurementMatrix<ScalarType, SensorDimension, StateDimension>::Identity();
 };
 
 template <typename ScalarType, int StateDimension, int SensorDimension>
@@ -135,9 +138,9 @@ TEST_F(KalmanFilterZeroAllocationTestFixture, PredictStep) {
 
     uUt.Predict();
 
-    StateVector<ScalarType, StateDimension> expectedStateVector;
+    StateSpaceVector<ScalarType, StateDimension> expectedStateVector;
     expectedStateVector << 5, 11;
-    Matrix<ScalarType, StateDimension> expectedErrorCovarianceMatrix;
+    StateSpaceMatrix<ScalarType, StateDimension> expectedErrorCovarianceMatrix;
     // clang-format off
     expectedErrorCovarianceMatrix << 18.5, 40.1,
                                      40.1, 90.25;
