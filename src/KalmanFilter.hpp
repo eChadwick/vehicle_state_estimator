@@ -30,12 +30,15 @@ class KalmanFilter {
     using StateSpaceVector = Eigen::Matrix<ScalarType, StateDimension, 1>;
     using StateSpaceMatrix = Eigen::Matrix<ScalarType, StateDimension, StateDimension>;
 
-    KalmanFilter(
-        const StateSpaceVector& stateVector, const StateSpaceMatrix& transitionMatrix,
-        const StateSpaceMatrix& errorCovarianceMatrix, const StateSpaceMatrix& processNoiseMatrix,
-        const Eigen::Matrix<ScalarType, SensorDimension, StateDimension>& measurementMatrix,
-        const Eigen::Matrix<ScalarType, SensorDimension, SensorDimension>&
-            sensorErrorCovarianceMatrix) {
+    using SensorSpaceMatrix = Eigen::Matrix<ScalarType, SensorDimension, SensorDimension>;
+
+    using MeasurementMatrix = Eigen::Matrix<ScalarType, SensorDimension, StateDimension>;
+
+    KalmanFilter(const StateSpaceVector& stateVector, const StateSpaceMatrix& transitionMatrix,
+                 const StateSpaceMatrix& errorCovarianceMatrix,
+                 const StateSpaceMatrix& processNoiseMatrix,
+                 const MeasurementMatrix& measurementMatrix,
+                 const SensorSpaceMatrix& sensorErrorCovarianceMatrix) {
         InitStateVector(stateVector);
         InitTransitionMatrix(transitionMatrix);
         InitErrorCovariance(errorCovarianceMatrix);
@@ -59,12 +62,9 @@ class KalmanFilter {
 
     const StateSpaceMatrix& GetProcessNoiseMatrix() const { return mProcessNoiseMatrix; }
 
-    const Eigen::Matrix<ScalarType, SensorDimension, StateDimension>& GetMeasurementMatrix() const {
-        return mMeasurementMatrix;
-    }
+    const MeasurementMatrix& GetMeasurementMatrix() const { return mMeasurementMatrix; }
 
-    const Eigen::Matrix<ScalarType, SensorDimension, SensorDimension>&
-    GetSensorErrorCovarianceMatrix() const {
+    const SensorSpaceMatrix& GetSensorErrorCovarianceMatrix() const {
         return mSensorErrorCovarianceMatrix;
     }
 
@@ -123,8 +123,7 @@ class KalmanFilter {
         mProcessNoiseMatrix = processNoiseMatrix;
     }
 
-    void InitMeasurementMatrix(
-        const Eigen::Matrix<ScalarType, SensorDimension, StateDimension>& measurementMatrix) {
+    void InitMeasurementMatrix(const MeasurementMatrix& measurementMatrix) {
         if (!measurementMatrix.allFinite()) {
             throw std::invalid_argument(KalmanFilterErrors::NonFiniteMeasurementMatrix);
         }
@@ -136,6 +135,6 @@ class KalmanFilter {
     StateSpaceMatrix mTransitionMatrix;
     StateSpaceMatrix mErrorCovarianceMatrix;
     StateSpaceMatrix mProcessNoiseMatrix;
-    Eigen::Matrix<ScalarType, SensorDimension, StateDimension> mMeasurementMatrix;
-    Eigen::Matrix<ScalarType, SensorDimension, SensorDimension> mSensorErrorCovarianceMatrix;
+    MeasurementMatrix mMeasurementMatrix;
+    SensorSpaceMatrix mSensorErrorCovarianceMatrix;
 };
