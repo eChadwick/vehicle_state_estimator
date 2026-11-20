@@ -5,14 +5,17 @@
 #include "ZeroAllocationTestFixture.hpp"
 #include "gtest/gtest.h"
 
-template <typename ScalarType, int Dimension>
-using StateSpaceVector = Eigen::Matrix<ScalarType, Dimension, 1>;
+template <typename ScalarType, int StateDimension>
+using StateSpaceVector = Eigen::Matrix<ScalarType, StateDimension, 1>;
 
-template <typename ScalarType, int Dimension>
-using StateSpaceMatrix = Eigen::Matrix<ScalarType, Dimension, Dimension>;
+template <typename ScalarType, int StateDimension>
+using StateSpaceMatrix = Eigen::Matrix<ScalarType, StateDimension, StateDimension>;
 
 template <typename ScalarType, int SensorDimension, int StateDimension>
 using MeasurementMatrix = Eigen::Matrix<ScalarType, SensorDimension, StateDimension>;
+
+template <typename ScalarType, int SensorDimension>
+using SensorSpaceMatrix = Eigen::Matrix<ScalarType, SensorDimension, SensorDimension>;
 
 template <typename ScalarType, int StateDimension, int SensorDimension>
 struct KalmanFilterTestParams {
@@ -26,6 +29,8 @@ struct KalmanFilterTestParams {
         StateSpaceMatrix<ScalarType, StateDimension>::Identity();
     MeasurementMatrix<ScalarType, SensorDimension, StateDimension> measurementMatrix =
         MeasurementMatrix<ScalarType, SensorDimension, StateDimension>::Identity();
+    SensorSpaceMatrix<ScalarType, SensorDimension> sensorErrorCovarianceMatrix =
+        SensorSpaceMatrix<ScalarType, SensorDimension>::Identity();
 };
 
 template <typename ScalarType, int StateDimension, int SensorDimension>
@@ -37,13 +42,16 @@ void EXPECT_FILTER_EQ(
     EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(filter.GetErrorCovarianceMatrix()));
     EXPECT_TRUE(params.processNoiseMatrix.isApprox(filter.GetProcessNoiseMatrix()));
     EXPECT_TRUE(params.measurementMatrix.isApprox(filter.GetMeasurementMatrix()));
+    EXPECT_TRUE(
+        params.sensorErrorCovarianceMatrix.isApprox(filter.GetSensorErrorCovarianceMatrix()));
 }
 
 template <typename ScalarType, int StateDimension, int SensorDimension>
 KalmanFilter<ScalarType, StateDimension, SensorDimension> KalmanFilterFromParams(
     KalmanFilterTestParams<ScalarType, StateDimension, SensorDimension> params) {
-    return KalmanFilter{params.stateVector, params.transitionMatrix, params.errorCovarianceMatrix,
-                        params.processNoiseMatrix, params.measurementMatrix};
+    return KalmanFilter{params.stateVector,           params.transitionMatrix,
+                        params.errorCovarianceMatrix, params.processNoiseMatrix,
+                        params.measurementMatrix,     params.sensorErrorCovarianceMatrix};
 };
 
 class KalmanFilterZeroAllocationTestFixture : public ZeroAllocationTestFixture {

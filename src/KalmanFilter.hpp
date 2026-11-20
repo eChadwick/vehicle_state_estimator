@@ -33,12 +33,15 @@ class KalmanFilter {
     KalmanFilter(
         const StateSpaceVector& stateVector, const StateSpaceMatrix& transitionMatrix,
         const StateSpaceMatrix& errorCovarianceMatrix, const StateSpaceMatrix& processNoiseMatrix,
-        const Eigen::Matrix<ScalarType, SensorDimension, StateDimension>& measurementMatrix) {
+        const Eigen::Matrix<ScalarType, SensorDimension, StateDimension>& measurementMatrix,
+        const Eigen::Matrix<ScalarType, SensorDimension, SensorDimension>&
+            sensorErrorCovarianceMatrix) {
         InitStateVector(stateVector);
         InitTransitionMatrix(transitionMatrix);
         InitErrorCovariance(errorCovarianceMatrix);
         InitProcessNoise(processNoiseMatrix);
         InitMeasurementMatrix(measurementMatrix);
+        mSensorErrorCovarianceMatrix = sensorErrorCovarianceMatrix;
     }
 
     void Predict() {
@@ -58,6 +61,11 @@ class KalmanFilter {
 
     const Eigen::Matrix<ScalarType, SensorDimension, StateDimension>& GetMeasurementMatrix() const {
         return mMeasurementMatrix;
+    }
+
+    const Eigen::Matrix<ScalarType, SensorDimension, SensorDimension>&
+    GetSensorErrorCovarianceMatrix() const {
+        return mSensorErrorCovarianceMatrix;
     }
 
   private:
@@ -129,4 +137,5 @@ class KalmanFilter {
     StateSpaceMatrix mErrorCovarianceMatrix;
     StateSpaceMatrix mProcessNoiseMatrix;
     Eigen::Matrix<ScalarType, SensorDimension, StateDimension> mMeasurementMatrix;
+    Eigen::Matrix<ScalarType, SensorDimension, SensorDimension> mSensorErrorCovarianceMatrix;
 };
