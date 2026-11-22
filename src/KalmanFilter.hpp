@@ -22,6 +22,8 @@ inline constexpr const char* NonPositiveSemiDefiniteErrorCovariance{
     "KalmanFilter initialization failed: Non-positve-semi-definite error covariance matrix input"};
 inline constexpr const char* NonPositiveSemiDefiniteProcessNoise{
     "KalmanFilter initialization failed: Non-positve-semi-definite process noise matrix input"};
+inline constexpr const char* AsymmetricSensorErrorCovariance{
+    "KalmanFilter initialization failed: Asymmetric sensor error covariance matrix input"};
 }  // namespace KalmanFilterErrors
 
 template <typename ScalarType, int StateDimension, int SensorDimension>
@@ -44,7 +46,7 @@ class KalmanFilter {
         InitErrorCovariance(errorCovarianceMatrix);
         InitProcessNoise(processNoiseMatrix);
         InitMeasurementMatrix(measurementMatrix);
-        mSensorErrorCovarianceMatrix = sensorErrorCovarianceMatrix;
+        InitSensorErrorCovarianceMatrix(sensorErrorCovarianceMatrix);
     }
 
     void Predict() {
@@ -129,6 +131,14 @@ class KalmanFilter {
         }
 
         mMeasurementMatrix = measurementMatrix;
+    }
+
+    void InitSensorErrorCovarianceMatrix(const SensorSpaceMatrix& sensorErrorCovarianceMatrix) {
+        if (!sensorErrorCovarianceMatrix.isApprox(sensorErrorCovarianceMatrix.transpose())) {
+            throw std::invalid_argument(KalmanFilterErrors::AsymmetricSensorErrorCovariance);
+        }
+
+        mSensorErrorCovarianceMatrix = sensorErrorCovarianceMatrix;
     }
 
     StateSpaceVector mStateVector;

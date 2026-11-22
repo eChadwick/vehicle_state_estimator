@@ -345,3 +345,19 @@ TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteProcessNoiseMatrixIsE
             std::invalid_argument);
     }
 }
+
+TEST(KalmanFilterInitTests, InitWithAsymmetricSensorErrorCovarianceIsError) {
+    KalmanFilterTestParams<double, 2, 3> params;
+    params.sensorErrorCovarianceMatrix(1, 0)++;
+
+    EXPECT_THROW(
+        {
+            try {
+                KalmanFilterFromParams(params);
+            } catch (const std::invalid_argument& e) {
+                EXPECT_STREQ(e.what(), KalmanFilterErrors::AsymmetricSensorErrorCovariance);
+                throw;
+            }
+        },
+        std::invalid_argument);
+}
