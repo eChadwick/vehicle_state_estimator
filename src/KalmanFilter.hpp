@@ -24,6 +24,8 @@ inline constexpr const char* NonPositiveSemiDefiniteProcessNoise{
     "KalmanFilter initialization failed: Non-positve-semi-definite process noise matrix input"};
 inline constexpr const char* AsymmetricSensorErrorCovariance{
     "KalmanFilter initialization failed: Asymmetric sensor error covariance matrix input"};
+inline constexpr const char* NonFiniteSensorErrorCovarianceMatrix{
+    "KalmanFilter initialization failed: Non-finite sensor error covariance matrix input"};
 }  // namespace KalmanFilterErrors
 
 template <typename ScalarType, int StateDimension, int SensorDimension>
@@ -134,6 +136,10 @@ class KalmanFilter {
     }
 
     void InitSensorErrorCovarianceMatrix(const SensorSpaceMatrix& sensorErrorCovarianceMatrix) {
+        if (!sensorErrorCovarianceMatrix.allFinite()) {
+            throw std::invalid_argument(KalmanFilterErrors::NonFiniteSensorErrorCovarianceMatrix);
+        }
+
         if (!sensorErrorCovarianceMatrix.isApprox(sensorErrorCovarianceMatrix.transpose())) {
             throw std::invalid_argument(KalmanFilterErrors::AsymmetricSensorErrorCovariance);
         }
