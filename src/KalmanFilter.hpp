@@ -26,6 +26,9 @@ inline constexpr const char* AsymmetricSensorErrorCovariance{
     "KalmanFilter initialization failed: Asymmetric sensor error covariance matrix input"};
 inline constexpr const char* NonFiniteSensorErrorCovarianceMatrix{
     "KalmanFilter initialization failed: Non-finite sensor error covariance matrix input"};
+inline constexpr const char* NonPositiveDefiniteSensorErrorCovariance{
+    "KalmanFilter initialization failed: Non-positive-definite sensor error covariance matrix "
+    "input"};
 }  // namespace KalmanFilterErrors
 
 template <typename ScalarType, int StateDimension, int SensorDimension>
@@ -142,6 +145,12 @@ class KalmanFilter {
 
         if (!sensorErrorCovarianceMatrix.isApprox(sensorErrorCovarianceMatrix.transpose())) {
             throw std::invalid_argument(KalmanFilterErrors::AsymmetricSensorErrorCovariance);
+        }
+
+        Eigen::LLT<SensorSpaceMatrix> llt(sensorErrorCovarianceMatrix);
+        if (llt.info() != Eigen::Success) {
+            throw std::invalid_argument(
+                KalmanFilterErrors::NonPositiveDefiniteSensorErrorCovariance);
         }
 
         mSensorErrorCovarianceMatrix = sensorErrorCovarianceMatrix;

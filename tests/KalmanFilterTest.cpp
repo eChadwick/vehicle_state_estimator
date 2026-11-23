@@ -378,3 +378,39 @@ TEST(KalmanFilterInitTests, InitWithAsymmetricSensorErrorCovarianceIsError) {
         },
         std::invalid_argument);
 }
+
+TEST(KalmanFilterInitTests, InitWithNonPositiveDefiniteSensorErrorCovarianceMatrixIsError) {
+    {
+        KalmanFilterTestParams<double, 2, 2> params;
+        params.sensorErrorCovarianceMatrix(1, 1) *= -1;
+
+        EXPECT_THROW(
+            {
+                try {
+                    KalmanFilterFromParams(params);
+                } catch (const std::invalid_argument& e) {
+                    EXPECT_STREQ(e.what(),
+                                 KalmanFilterErrors::NonPositiveDefiniteSensorErrorCovariance);
+                    throw;
+                }
+            },
+            std::invalid_argument);
+    }
+
+    {
+        KalmanFilterTestParams<double, 2, 2> params;
+        params.sensorErrorCovarianceMatrix << 1.0, 5.0, 5.0, 1.0;
+
+        EXPECT_THROW(
+            {
+                try {
+                    KalmanFilterFromParams(params);
+                } catch (const std::invalid_argument& e) {
+                    EXPECT_STREQ(e.what(),
+                                 KalmanFilterErrors::NonPositiveDefiniteSensorErrorCovariance);
+                    throw;
+                }
+            },
+            std::invalid_argument);
+    }
+}
