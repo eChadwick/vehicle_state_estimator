@@ -44,13 +44,11 @@ class KalmanFilter {
     KalmanFilter(const StateSpaceVector& stateVector, const StateSpaceMatrix& transitionMatrix,
                  const StateSpaceMatrix& errorCovarianceMatrix,
                  const StateSpaceMatrix& processNoiseMatrix,
-                 const MeasurementMatrix& measurementMatrix,
                  const SensorSpaceMatrix& sensorErrorCovarianceMatrix) {
         InitStateVector(stateVector);
         InitTransitionMatrix(transitionMatrix);
         InitErrorCovariance(errorCovarianceMatrix);
         InitProcessNoise(processNoiseMatrix);
-        InitMeasurementMatrix(measurementMatrix);
         InitSensorErrorCovarianceMatrix(sensorErrorCovarianceMatrix);
     }
 
@@ -68,8 +66,6 @@ class KalmanFilter {
     const StateSpaceMatrix& GetErrorCovarianceMatrix() const { return mErrorCovarianceMatrix; }
 
     const StateSpaceMatrix& GetProcessNoiseMatrix() const { return mProcessNoiseMatrix; }
-
-    const MeasurementMatrix& GetMeasurementMatrix() const { return mMeasurementMatrix; }
 
     const SensorSpaceMatrix& GetSensorErrorCovarianceMatrix() const {
         return mSensorErrorCovarianceMatrix;
@@ -130,14 +126,6 @@ class KalmanFilter {
         mProcessNoiseMatrix = processNoiseMatrix;
     }
 
-    void InitMeasurementMatrix(const MeasurementMatrix& measurementMatrix) {
-        if (!measurementMatrix.allFinite()) {
-            throw std::invalid_argument(KalmanFilterErrors::NonFiniteMeasurementMatrix);
-        }
-
-        mMeasurementMatrix = measurementMatrix;
-    }
-
     void InitSensorErrorCovarianceMatrix(const SensorSpaceMatrix& sensorErrorCovarianceMatrix) {
         if (!sensorErrorCovarianceMatrix.allFinite()) {
             throw std::invalid_argument(KalmanFilterErrors::NonFiniteSensorErrorCovarianceMatrix);
@@ -160,6 +148,5 @@ class KalmanFilter {
     StateSpaceMatrix mTransitionMatrix;
     StateSpaceMatrix mErrorCovarianceMatrix;
     StateSpaceMatrix mProcessNoiseMatrix;
-    MeasurementMatrix mMeasurementMatrix;
     SensorSpaceMatrix mSensorErrorCovarianceMatrix;
 };

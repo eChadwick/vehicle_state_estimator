@@ -27,8 +27,6 @@ struct KalmanFilterTestParams {
         StateSpaceMatrix<ScalarType, StateDimension>::Identity();
     StateSpaceMatrix<ScalarType, StateDimension> processNoiseMatrix =
         StateSpaceMatrix<ScalarType, StateDimension>::Identity();
-    MeasurementMatrix<ScalarType, SensorDimension, StateDimension> measurementMatrix =
-        MeasurementMatrix<ScalarType, SensorDimension, StateDimension>::Identity();
     SensorSpaceMatrix<ScalarType, SensorDimension> sensorErrorCovarianceMatrix =
         SensorSpaceMatrix<ScalarType, SensorDimension>::Identity();
 };
@@ -41,7 +39,6 @@ void EXPECT_FILTER_EQ(
     EXPECT_TRUE(params.transitionMatrix.isApprox(filter.GetTransitionMatrix()));
     EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(filter.GetErrorCovarianceMatrix()));
     EXPECT_TRUE(params.processNoiseMatrix.isApprox(filter.GetProcessNoiseMatrix()));
-    EXPECT_TRUE(params.measurementMatrix.isApprox(filter.GetMeasurementMatrix()));
     EXPECT_TRUE(
         params.sensorErrorCovarianceMatrix.isApprox(filter.GetSensorErrorCovarianceMatrix()));
 }
@@ -49,9 +46,8 @@ void EXPECT_FILTER_EQ(
 template <typename ScalarType, int StateDimension, int SensorDimension>
 KalmanFilter<ScalarType, StateDimension, SensorDimension> KalmanFilterFromParams(
     KalmanFilterTestParams<ScalarType, StateDimension, SensorDimension> params) {
-    return KalmanFilter{params.stateVector,           params.transitionMatrix,
-                        params.errorCovarianceMatrix, params.processNoiseMatrix,
-                        params.measurementMatrix,     params.sensorErrorCovarianceMatrix};
+    return KalmanFilter{params.stateVector, params.transitionMatrix, params.errorCovarianceMatrix,
+                        params.processNoiseMatrix, params.sensorErrorCovarianceMatrix};
 };
 
 class KalmanFilterZeroAllocationTestFixture : public ZeroAllocationTestFixture {
@@ -252,22 +248,6 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
                         KalmanFilterFromParams(params);
                     } catch (const std::invalid_argument& e) {
                         EXPECT_STREQ(e.what(), KalmanFilterErrors::NonFiniteProcessNoiseMatrix);
-                        throw;
-                    }
-                },
-                std::invalid_argument);
-        }
-
-        {
-            KalmanFilterTestParams<double, 2, 3> params;
-            params.measurementMatrix(0, 0) = badVal;
-
-            EXPECT_THROW(
-                {
-                    try {
-                        KalmanFilterFromParams(params);
-                    } catch (const std::invalid_argument& e) {
-                        EXPECT_STREQ(e.what(), KalmanFilterErrors::NonFiniteMeasurementMatrix);
                         throw;
                     }
                 },
