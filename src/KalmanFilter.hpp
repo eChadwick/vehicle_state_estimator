@@ -43,13 +43,11 @@ class KalmanFilter {
 
     KalmanFilter(const StateSpaceVector& stateVector, const StateSpaceMatrix& transitionMatrix,
                  const StateSpaceMatrix& errorCovarianceMatrix,
-                 const StateSpaceMatrix& processNoiseMatrix,
-                 const SensorSpaceMatrix& sensorErrorCovarianceMatrix) {
+                 const StateSpaceMatrix& processNoiseMatrix) {
         InitStateVector(stateVector);
         InitTransitionMatrix(transitionMatrix);
         InitErrorCovariance(errorCovarianceMatrix);
         InitProcessNoise(processNoiseMatrix);
-        InitSensorErrorCovarianceMatrix(sensorErrorCovarianceMatrix);
     }
 
     void Predict() {
@@ -66,10 +64,6 @@ class KalmanFilter {
     const StateSpaceMatrix& GetErrorCovarianceMatrix() const { return mErrorCovarianceMatrix; }
 
     const StateSpaceMatrix& GetProcessNoiseMatrix() const { return mProcessNoiseMatrix; }
-
-    const SensorSpaceMatrix& GetSensorErrorCovarianceMatrix() const {
-        return mSensorErrorCovarianceMatrix;
-    }
 
   private:
     void InitStateVector(const StateSpaceVector& stateVector) {
@@ -126,27 +120,8 @@ class KalmanFilter {
         mProcessNoiseMatrix = processNoiseMatrix;
     }
 
-    void InitSensorErrorCovarianceMatrix(const SensorSpaceMatrix& sensorErrorCovarianceMatrix) {
-        if (!sensorErrorCovarianceMatrix.allFinite()) {
-            throw std::invalid_argument(KalmanFilterErrors::NonFiniteSensorErrorCovarianceMatrix);
-        }
-
-        if (!sensorErrorCovarianceMatrix.isApprox(sensorErrorCovarianceMatrix.transpose())) {
-            throw std::invalid_argument(KalmanFilterErrors::AsymmetricSensorErrorCovariance);
-        }
-
-        Eigen::LLT<SensorSpaceMatrix> llt(sensorErrorCovarianceMatrix);
-        if (llt.info() != Eigen::Success) {
-            throw std::invalid_argument(
-                KalmanFilterErrors::NonPositiveDefiniteSensorErrorCovariance);
-        }
-
-        mSensorErrorCovarianceMatrix = sensorErrorCovarianceMatrix;
-    }
-
     StateSpaceVector mStateVector;
     StateSpaceMatrix mTransitionMatrix;
     StateSpaceMatrix mErrorCovarianceMatrix;
     StateSpaceMatrix mProcessNoiseMatrix;
-    SensorSpaceMatrix mSensorErrorCovarianceMatrix;
 };

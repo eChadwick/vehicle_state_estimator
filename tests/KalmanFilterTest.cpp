@@ -27,8 +27,6 @@ struct KalmanFilterTestParams {
         StateSpaceMatrix<ScalarType, StateDimension>::Identity();
     StateSpaceMatrix<ScalarType, StateDimension> processNoiseMatrix =
         StateSpaceMatrix<ScalarType, StateDimension>::Identity();
-    SensorSpaceMatrix<ScalarType, SensorDimension> sensorErrorCovarianceMatrix =
-        SensorSpaceMatrix<ScalarType, SensorDimension>::Identity();
 };
 
 template <typename ScalarType, int StateDimension, int SensorDimension>
@@ -39,15 +37,14 @@ void EXPECT_FILTER_EQ(
     EXPECT_TRUE(params.transitionMatrix.isApprox(filter.GetTransitionMatrix()));
     EXPECT_TRUE(params.errorCovarianceMatrix.isApprox(filter.GetErrorCovarianceMatrix()));
     EXPECT_TRUE(params.processNoiseMatrix.isApprox(filter.GetProcessNoiseMatrix()));
-    EXPECT_TRUE(
-        params.sensorErrorCovarianceMatrix.isApprox(filter.GetSensorErrorCovarianceMatrix()));
 }
 
 template <typename ScalarType, int StateDimension, int SensorDimension>
 KalmanFilter<ScalarType, StateDimension, SensorDimension> KalmanFilterFromParams(
     KalmanFilterTestParams<ScalarType, StateDimension, SensorDimension> params) {
-    return KalmanFilter{params.stateVector, params.transitionMatrix, params.errorCovarianceMatrix,
-                        params.processNoiseMatrix, params.sensorErrorCovarianceMatrix};
+    return KalmanFilter<ScalarType, StateDimension, SensorDimension>{
+        params.stateVector, params.transitionMatrix, params.errorCovarianceMatrix,
+        params.processNoiseMatrix};
 };
 
 class KalmanFilterZeroAllocationTestFixture : public ZeroAllocationTestFixture {
@@ -253,23 +250,6 @@ TEST(KalmanFilterInitTests, InitWithInvalidNumericInputsIsError) {
                 },
                 std::invalid_argument);
         }
-
-        {
-            KalmanFilterTestParams<double, 2, 3> params;
-            params.sensorErrorCovarianceMatrix(0, 0) = badVal;
-
-            EXPECT_THROW(
-                {
-                    try {
-                        KalmanFilterFromParams(params);
-                    } catch (const std::invalid_argument& e) {
-                        EXPECT_STREQ(e.what(),
-                                     KalmanFilterErrors::NonFiniteSensorErrorCovarianceMatrix);
-                        throw;
-                    }
-                },
-                std::invalid_argument);
-        }
     }
 }
 
@@ -336,58 +316,6 @@ TEST(KalmanFilterInitTests, InitWithNonPositiveSemiDefiniteProcessNoiseMatrixIsE
                     KalmanFilterFromParams(params);
                 } catch (const std::invalid_argument& e) {
                     EXPECT_STREQ(e.what(), KalmanFilterErrors::NonPositiveSemiDefiniteProcessNoise);
-                    throw;
-                }
-            },
-            std::invalid_argument);
-    }
-}
-
-TEST(KalmanFilterInitTests, InitWithAsymmetricSensorErrorCovarianceIsError) {
-    KalmanFilterTestParams<double, 2, 3> params;
-    params.sensorErrorCovarianceMatrix(1, 0)++;
-
-    EXPECT_THROW(
-        {
-            try {
-                KalmanFilterFromParams(params);
-            } catch (const std::invalid_argument& e) {
-                EXPECT_STREQ(e.what(), KalmanFilterErrors::AsymmetricSensorErrorCovariance);
-                throw;
-            }
-        },
-        std::invalid_argument);
-}
-
-TEST(KalmanFilterInitTests, InitWithNonPositiveDefiniteSensorErrorCovarianceMatrixIsError) {
-    {
-        KalmanFilterTestParams<double, 2, 2> params;
-        params.sensorErrorCovarianceMatrix(1, 1) *= -1;
-
-        EXPECT_THROW(
-            {
-                try {
-                    KalmanFilterFromParams(params);
-                } catch (const std::invalid_argument& e) {
-                    EXPECT_STREQ(e.what(),
-                                 KalmanFilterErrors::NonPositiveDefiniteSensorErrorCovariance);
-                    throw;
-                }
-            },
-            std::invalid_argument);
-    }
-
-    {
-        KalmanFilterTestParams<double, 2, 2> params;
-        params.sensorErrorCovarianceMatrix << 1.0, 5.0, 5.0, 1.0;
-
-        EXPECT_THROW(
-            {
-                try {
-                    KalmanFilterFromParams(params);
-                } catch (const std::invalid_argument& e) {
-                    EXPECT_STREQ(e.what(),
-                                 KalmanFilterErrors::NonPositiveDefiniteSensorErrorCovariance);
                     throw;
                 }
             },
